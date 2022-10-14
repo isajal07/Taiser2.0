@@ -1,0 +1,12 @@
+fileFormatVersion: 2
+<<<<<<< HEAD
+guid: ef33c5d2453aa2b4f91f632aabc77e56
+=======
+guid: d3dc73ded2563c04da4e5faaa6f6fbde
+>>>>>>> 6795d64 (Tweaked fonts, colors in some UI screens)
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
