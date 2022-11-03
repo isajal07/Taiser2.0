@@ -31,7 +31,7 @@ public class NewLobbyManager : MonoBehaviour
         EnterAlias,
         CreateOrJoin,
         MissionObjective,
-        ChooseDifficulty,
+        // ChooseDifficulty,
         WaitingForPlayers,
         Play,
         None
@@ -41,7 +41,7 @@ public class NewLobbyManager : MonoBehaviour
     public Panel EnterAliasPanel;
     // public Panel CreateOrJoinGamePanel;
     public Panel MissionObjectivePanel;
-    public Panel ChooseDifficultyPanel;
+    // public Panel ChooseDifficultyPanel;
     public Panel WaitingForPlayersPanel;
     public LobbyState _state;
     public LobbyState State
@@ -53,7 +53,7 @@ public class NewLobbyManager : MonoBehaviour
             StartPanel.isVisible = (_state == LobbyState.StartOrQuit);
             EnterAliasPanel.isVisible = (_state == LobbyState.EnterAlias);
             MissionObjectivePanel.isVisible = (_state == LobbyState.MissionObjective);
-            ChooseDifficultyPanel.isVisible = (_state == LobbyState.ChooseDifficulty);
+            // ChooseDifficultyPanel.isVisible = (_state == LobbyState.ChooseDifficulty);
             WaitingForPlayersPanel.isVisible = (_state == LobbyState.WaitingForPlayers);
             // CreateOrJoinGamePanel.isVisible = (_state == LobbyState.CreateOrJoin);
         }
@@ -87,7 +87,7 @@ public class NewLobbyManager : MonoBehaviour
     public void OnJoinButton()
     {
         PlayerName = AliasInputFieldText.text.Trim();
-        Debug.Log(PlayerName);
+        // Debug.Log(PlayerName);
         // PlayerNameText.text = PlayerName;
         // PlayerRole = PlayerRoles.Whitehat;
         // PlrSpecies = PlayerSpecies.Human;
@@ -105,28 +105,13 @@ public class NewLobbyManager : MonoBehaviour
     //-------------------MissionObjectivePanel-------------------------------------
     public void onUnderstoodButton()
     {
-        State = LobbyState.ChooseDifficulty;
+        State = LobbyState.WaitingForPlayers;
+        CreateGameAndWaitForPlayers();
     }
 
     public void onBackToEnterAliasPanel(){
         State = LobbyState.EnterAlias;
     }
-    //---------------------------------------------------------------------
-
-    //-------------------ChooseDifficultyPanel-----------------------------
-    public static Difficulty gameDifficulty;
-    public void onChooseDifficultyButton()
-    {
-        // gameDifficulty = Difficulty.Novice;
-        Debug.Log("Difficulty: " + gameDifficulty);
-        State = LobbyState.WaitingForPlayers;
-        CreateGameAndWaitForPlayers();
-    }
-
-    public void onBackToMissionObjectivePanel(){
-        State = LobbyState.MissionObjective;
-    }
-    
     //---------------------------------------------------------------------
     //-------------------WaitingPlayerPanel--------------------------------
 
@@ -148,7 +133,6 @@ public class NewLobbyManager : MonoBehaviour
     public async void CreateGameAndWaitForPlayers()
     {
         bool RandBool = utils.generateBoolean();
-        int waitingTime = utils.generateWaitingTime();
 
         PlayerNameText.text = PlayerName;
         HumanTeammateNameText.text = utils.generatePlayerName();
@@ -156,28 +140,33 @@ public class NewLobbyManager : MonoBehaviour
         Opponent1NameText.text = utils.generatePlayerName();
         Opponent2NameText.text = utils.generatePlayerName();
         
-        await Task.Delay(waitingTime);
+        int opponent1WaitingTime = utils.generateWaitingTime();
+        int teamateWaitingTime = utils.generateWaitingTime();
+
+        await Task.Delay(teamateWaitingTime);
         HumanTeammate.SetActive(true);
         
-        await Task.Delay(waitingTime);
+        await Task.Delay(opponent1WaitingTime);
         Opponent1.SetActive(true);
         
         if (RandBool) {
-            await Task.Delay(waitingTime);
+            int opponent2WaitingTime = utils.generateWaitingTime();
+            await Task.Delay(opponent2WaitingTime);
             Opponent2.SetActive(RandBool);
         }
+
         SpinnerPanel.gameObject.SetActive(false);
         StartButton.SetActive(true);
         ReadyMessage.text = "Ready!";
     }
     public void onStartButton()
     {
-        Debug.Log("STARTED!!");
+        // Debug.Log("STARTED!!");
         UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(1);
     }
 
-    public void onBackToChooseDifficultyPanel(){
-        State = LobbyState.ChooseDifficulty;
+    public void onBackToMissionObjectivePanel(){
+        State = LobbyState.MissionObjective;
     }
     
     //---------------------------------------------------------------------

@@ -37,10 +37,10 @@ public class TaiserPlayer
 
 
 
-public class PlayerMgr : MonoBehaviour
+public class PlayerManager : MonoBehaviour
 {
 
-    public static PlayerMgr inst;
+    public static PlayerManager inst;
     private void Awake()
     {
         inst = this;

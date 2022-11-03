@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 227125018575243579}
   - component: {fileID: 227125018575243576}
   - component: {fileID: 6847183996010145848}
+  - component: {fileID: 8104686013264185138}
   m_Layer: 0
   m_Name: WaypointCube
   m_TagString: Untagged
@@ -112,3 +113,15 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 126
   m_CollisionDetection: 0
+--- !u!114 &8104686013264185138
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 227125018575243582}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e708031d890c271459f0252cb9431859, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
