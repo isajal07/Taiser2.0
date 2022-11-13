@@ -104,17 +104,17 @@ public class Destination : MonoBehaviour
                 maliciousUnfilteredCount += 1;
                 GrowCube();
                 TLogPacket(tPack);
-                // EffectsMgr.inst.MaliciousUnfilteredPacket(this, tPack.packet);
-                // InstrumentMgr.inst.AddRecord(TaiserEventTypes.MaliciousPacketUnfiltered_BadForUs.ToString(), inGameName);
-                //NewAudioMgr.inst.source.PlayOneShot(NewAudioMgr.inst.maliciousUnfiltered);
+                EffectsManager.inst.MaliciousUnfilteredPacket(this, tPack.packet);
+                InstrumentManager.inst.AddRecord(TaiserEventTypes.MaliciousPacketUnfiltered_BadForUs.ToString(), inGameName);
+                // NewAudioManager.inst.source.PlayOneShot(NewAudioManager.inst.maliciousUnfiltered);
 
             } else if (tPack.packet.isMalicious && isPacketFiltered(tPack)) {
                 maliciousCount += 1;
                 maliciousFilteredCount += 1;
                 ShrinkCube();
-                // EffectsMgr.inst.MaliciousFilteredPacket(this, tPack.packet);
-                // InstrumentMgr.inst.AddRecord(TaiserEventTypes.MaliciousPacketFiltered_GoodForUs.ToString(), inGameName);
-                //NewAudioMgr.inst.source.PlayOneShot(NewAudioMgr.inst.maliciousFiltered);
+                EffectsManager.inst.MaliciousFilteredPacket(this, tPack.packet);
+                InstrumentManager.inst.AddRecord(TaiserEventTypes.MaliciousPacketFiltered_GoodForUs.ToString(), inGameName);
+                // NewAudioManager.inst.source.PlayOneShot(NewAudioManager.inst.maliciousFiltered);
 
             } // ! malicious but filtered ==> oopsie penalty in score
             NewEntityManager.inst.ReturnPoolPacket(tPack); // return to pool: reparent, set velocity to zero

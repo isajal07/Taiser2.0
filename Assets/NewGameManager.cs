@@ -312,7 +312,7 @@ public class NewGameManager : MonoBehaviour
         //SetDifficulty(NewLobbyMgr.gameDifficulty);
 
         Debug.Log("Startwave: " + currentWaveNumber);
-        // InstrumentMgr.inst.AddRecord(TaiserEventTypes.StartWave.ToString());
+        InstrumentManager.inst.AddRecord(TaiserEventTypes.StartWave.ToString());
         SetWaveNumberEffect(Color.green);
         CountdownLabel.text = timerSecs.ToString("0");
         InvokeRepeating("CountdownLabeller", 0.1f, 1.1f);
@@ -331,7 +331,7 @@ public class NewGameManager : MonoBehaviour
             StartWaveAtDestinations();
             timerSecs = 5;
         } else {
-            // NewAudioMgr.inst.PlayOneShot(NewAudioMgr.inst.Countdown);
+            NewAudioManager.inst.PlayOneShot(NewAudioManager.inst.Countdown);
             timerSecs -= 1;
             CountdownLabel.text = timerSecs.ToString("0");
         }
@@ -417,10 +417,10 @@ public class NewGameManager : MonoBehaviour
 
         if(WhitehatScore > BlackhatScore) { 
             VictoryOrDefeatText.text = "Victory!";
-            // NewAudioMgr.inst.PlayOneShot(NewAudioMgr.inst.Winning, 1.0f);
+            NewAudioManager.inst.PlayOneShot(NewAudioManager.inst.Winning, 1.0f);
         } else {
             VictoryOrDefeatText.text = "Defeat!";
-            // NewAudioMgr.inst.PlayOneShot(NewAudioMgr.inst.Losing, 5.0f);
+            NewAudioManager.inst.PlayOneShot(NewAudioManager.inst.Losing, 5.0f);
         }
         currentWaveNumber += 1;
         if(currentWaveNumber >= maxWaves)
@@ -475,7 +475,7 @@ public class NewGameManager : MonoBehaviour
         if(currentWaveNumber < maxWaves) {
             StartWave();//Startwave unpauses destination clocks
         } else {
-            // InstrumentMgr.inst.WriteSession();
+            InstrumentManager.inst.WriteSession();
             State = GameState.Menu;
             ResetGame();
         }
@@ -686,23 +686,23 @@ public class NewGameManager : MonoBehaviour
 
         destination.FilterOnRule(packet);
 
-        // if(packet.isEqual(destination.MaliciousRule)) {
-        //     if(isAdvice)
-        //         InstrumentMgr.inst.AddRecord(TaiserEventTypes.AdvisedFirewallCorrectAndSet.ToString());
-        //     else
-        //         InstrumentMgr.inst.AddRecord(TaiserEventTypes.UserBuiltFirewallCorrectAndSet.ToString());
-        //     EffectsMgr.inst.GoodFilterApplied(destination, packet);
-        //     //NewAudioMgr.inst.PlayOneShot(NewAudioMgr.inst.GoodFilterRule);
-        // } else {
-        //     if(isAdvice)
-        //         InstrumentMgr.inst.AddRecord(TaiserEventTypes.AdvisedFirewallIncorrectAndSet.ToString());
-        //     else
-        //         InstrumentMgr.inst.AddRecord(TaiserEventTypes.UserBuiltFirewallIncorrectAndSet.ToString());
-        //     EffectsMgr.inst.BadFilterApplied(destination, packet);
-        //     if(shouldApplyPenalty)
-        //         ApplyScorePenalty();
-        //     //NewAudioMgr.inst.source.PlayOneShot(NewAudioMgr.inst.BadFilterRule);
-        // }
+        if(packet.isEqual(destination.MaliciousRule)) {
+            if(isAdvice)
+                InstrumentManager.inst.AddRecord(TaiserEventTypes.AdvisedFirewallCorrectAndSet.ToString());
+            else
+                InstrumentManager.inst.AddRecord(TaiserEventTypes.UserBuiltFirewallCorrectAndSet.ToString());
+            EffectsManager.inst.GoodFilterApplied(destination, packet);
+            //NewAudioMgr.inst.PlayOneShot(NewAudioMgr.inst.GoodFilterRule);
+        } else {
+            if(isAdvice)
+                InstrumentManager.inst.AddRecord(TaiserEventTypes.AdvisedFirewallIncorrectAndSet.ToString());
+            else
+                InstrumentManager.inst.AddRecord(TaiserEventTypes.UserBuiltFirewallIncorrectAndSet.ToString());
+            EffectsManager.inst.BadFilterApplied(destination, packet);
+            if(shouldApplyPenalty)
+                ApplyScorePenalty();
+            //NewAudioMgr.inst.source.PlayOneShot(NewAudioMgr.inst.BadFilterRule);
+        }
 
         destination.isBeingExamined = false;
         State = GameState.InWave;
@@ -819,7 +819,7 @@ public class NewGameManager : MonoBehaviour
 
     public void OnMenuButtonClicked()
     {
-        // InstrumentMgr.inst.AddRecord(TaiserEventTypes.Menu.ToString());
+        InstrumentManager.inst.AddRecord(TaiserEventTypes.Menu.ToString());
         State = GameState.Menu;
     }
 

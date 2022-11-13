@@ -104,17 +104,17 @@ public class RuleSpecButtonManager : MonoBehaviour
     public void OnSizeClick(int size)
     {
         PlayerRuleSpec.size = (PacketSize) size;
-        // InstrumentMgr.inst.AddRecord(TaiserEventTypes.RuleSpec.ToString(), PlayerRuleSpec.size.ToString());
+        InstrumentManager.inst.AddRecord(TaiserEventTypes.RuleSpec.ToString(), PlayerRuleSpec.size.ToString());
     }
     public void OnColorClick(int color)
     {
         PlayerRuleSpec.color = (PacketColor) color;
-        // InstrumentMgr.inst.AddRecord(TaiserEventTypes.RuleSpec.ToString(), PlayerRuleSpec.color.ToString());
+        InstrumentManager.inst.AddRecord(TaiserEventTypes.RuleSpec.ToString(), PlayerRuleSpec.color.ToString());
     }
     public void OnShapeClick(int shape)
     {
         PlayerRuleSpec.shape = (PacketShape) shape;
-        // InstrumentMgr.inst.AddRecord(TaiserEventTypes.RuleSpec.ToString(), PlayerRuleSpec.shape.ToString());
+        InstrumentManager.inst.AddRecord(TaiserEventTypes.RuleSpec.ToString(), PlayerRuleSpec.shape.ToString());
     }
 
 
@@ -171,7 +171,7 @@ public class RuleSpecButtonManager : MonoBehaviour
         ClearPacketInformation(ClickedPacketRuleTextList);
         ClearPacketInformation(AdvisorRuleTextList);
 
-        // InstrumentMgr.inst.AddRecord(TaiserEventTypes.MaliciousDestinationClicked.ToString(), destination.inGameName);
+        InstrumentManager.inst.AddRecord(TaiserEventTypes.MaliciousDestinationClicked.ToString(), destination.inGameName);
     }
 
     //-------------------------------------------------------------------------------------
@@ -219,7 +219,7 @@ public class RuleSpecButtonManager : MonoBehaviour
     {
         ClickedPacketRuleSpec = packet;
         DisplayPacketInformation(packet, ClickedPacketRuleTextList); // expand on this
-        // InstrumentMgr.inst.AddRecord(TaiserEventTypes.PacketInspect.ToString(), packet.ToString());
+        InstrumentManager.inst.AddRecord(TaiserEventTypes.PacketInspect.ToString(), packet.ToString());
     }
 
     public void DisplayPacketInformation(LightWeightPacket packet, List<Text> RuleTextList)
@@ -299,7 +299,7 @@ public class RuleSpecButtonManager : MonoBehaviour
     {
         Debug.Log("Picked human");
         State = AdvisingState.Human;
-        // InstrumentMgr.inst.AddRecord(TaiserEventTypes.AdviseFromHumanOrAI.ToString(), "Human");
+        InstrumentManager.inst.AddRecord(TaiserEventTypes.AdviseFromHumanOrAI.ToString(), "Human");
         StartCoroutine(ProvideAdviceWithDelay());
     }
     public void AskForAIAdvice()
@@ -307,7 +307,7 @@ public class RuleSpecButtonManager : MonoBehaviour
         Debug.Log("Picked AI");
         State = AdvisingState.AI;
         //Show AI advice after interval
-        // InstrumentMgr.inst.AddRecord(TaiserEventTypes.AdviseFromHumanOrAI.ToString(), "AI");
+        InstrumentManager.inst.AddRecord(TaiserEventTypes.AdviseFromHumanOrAI.ToString(), "AI");
         StartCoroutine(ProvideAdviceWithDelay());
 
     }
