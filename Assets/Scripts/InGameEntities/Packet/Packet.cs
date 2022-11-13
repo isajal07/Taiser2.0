@@ -102,6 +102,7 @@ public class Packet : MonoBehaviour
         NextHeadings.Add(GetNextRoundedDiff(path.waypoints[path.waypoints.Count - 1].transform.position, 
             path.destination.transform.position, y));
         NextIndex = 0;
+
     }
 
     public Vector3 GetNextRoundedDiff(Vector3 start, Vector3 dest, float y)
@@ -119,7 +120,7 @@ public class Packet : MonoBehaviour
     /// </summary>
     public void MoveTo()
     {
-        transform.position += speed * normalizedHeading * Time.deltaTime;
+        transform.position += speed * normalizedHeading * Time.deltaTime * Time.timeScale;
     }
 
     public List<Vector3> NextHeadings = new List<Vector3>();
@@ -127,7 +128,6 @@ public class Packet : MonoBehaviour
     public void SetNextVelocityOnPath()
     {
         if(NextIndex < NextHeadings.Count) {
-            // NextHeadings.ForEach(a=> Debug.Log("dudududud: " + a));
             normalizedHeading = NextHeadings[NextIndex++];
             // set rotations only when vel changes
             if(normalizedHeading.x != 0)//orients correctly by being multiplied by normalizedHeading which is +1 or -1

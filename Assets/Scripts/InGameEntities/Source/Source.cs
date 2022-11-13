@@ -15,13 +15,14 @@ public class Source : MonoBehaviour
         //sourceState = SourceStates.Idle;
         Reset();
         Debug.Log(gameName + ": " + myId + ": " + timeInterval.ToString() + ", " + transform.parent.gameObject.name);
+
     }
 
     public float malPacketProbability = 0.25f;
 
     float dt;
     public float timeInterval = 0.5f; // between spawns, Set this in editor to tune game
-    public int maxPackets = 30; //Set this in editor to tune game
+    public int maxPackets;// = 30; //Set this in editor to tune game
     public SourceStates sourceState;
     public int myId;
     public string gameName;

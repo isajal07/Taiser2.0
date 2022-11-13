@@ -55,6 +55,7 @@ public enum TaiserEventTypes
     MaliciousPacketFiltered_GoodForUs,
     MaliciousPacketUnfiltered_BadForUs,
     AdviseTaken,
+    AdviseFromHumanOrAI,
 }
 
 public class InstrumentManager : MonoBehaviour
@@ -135,7 +136,7 @@ public class InstrumentManager : MonoBehaviour
         Debug.Log("Binary data added");
         WWW w = new WWW("https://www.cse.unr.edu/~sushil/taiser/DataLoad.php", form);
         yield return w;
- 
+
         if(w.error != null) {
             Debug.Log("Error: " + w.error);
             Debug.Log(w.text);
@@ -156,12 +157,12 @@ public class InstrumentManager : MonoBehaviour
         session.whitehatScore = NewGameManager.inst.WhitehatScore * 100f; // BlackhatAI.inst.wscore;
         session.blackhatScore = NewGameManager.inst.BlackhatScore * 100f; // BlackhatAI.inst.bscore;
         session.dayAndTime = System.DateTime.Now.ToUniversalTime().ToString();
-        session.gameDifficulty = NewGameManager.inst.difficulty;
+        //session.gameDifficulty = NewGameManager.inst.difficulty;
         string tmp = System.DateTime.Now.ToLocalTime().ToString();
         session.name = (isDebug ? "sjl" : NewLobbyManager.thisPlayer.name + "_" + 
             session.dayAndTime.Replace('/', '_').Replace(" ", "_").Replace(":", "_"));
         session.role = PlayerRoles.Whitehat;
-        // session.teammateSpecies = NewLobbyManager.teammateSpecies;
+        session.teammateSpecies = NewLobbyManager.teammateSpecies;
 
 
 
@@ -184,7 +185,7 @@ public class InstrumentManager : MonoBehaviour
         string header = "";
         header += session.name + ", " + session.role + ", "  +  session.dayAndTime + eoln;
         header += "Teammate Species: ," + session.teammateSpecies + eoln;
-        header += "Game Difficulty: ," + session.gameDifficulty + eoln;
+        //header += "Game Difficulty: ," + session.gameDifficulty + eoln;
         header += "Whitehat Score, " + session.whitehatScore.ToString("00.0") +
             ", Blackhat Score, " + session.blackhatScore.ToString("00.0") + eoln;
         header += "Time, Event, Modifiers" + eoln;

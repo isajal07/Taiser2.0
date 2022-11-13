@@ -1,5 +1,7 @@
+using System.CodeDom;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -78,6 +80,34 @@ public class DifficultyParameters
 }
 
 
+public enum ParameterNames
+{
+    MaxWaves = 0,
+    Penalty,
+    MaliciousPacketProbability,
+    IntervalBetweenPackets,
+    MaxNumberOfPackets,
+    MinIntervalBetweenRuleChanges,
+    MaxIntervalBetweenRuleChanges,
+    //
+    AICorrectProbability,
+    HumanCorrectProbability,
+    MinHumanAdviceTimeInSeconds,
+    MaxHumanAdviceTimeInSeconds,
+    MinAIAdviceTimeInSeconds,
+    MaxAIAdviceTimeInSeconds,
+    //
+    AIRandomSeed,
+    HumanRandomSeed,
+}
+
+[System.Serializable]
+public class ParameterHolder
+{
+    public ParameterNames parameterName;
+    public float parameterValue = -1;
+}
+
 //-------------------------------------------------------------------------------------------
 public class NewGameManager : MonoBehaviour
 {
@@ -94,21 +124,112 @@ public class NewGameManager : MonoBehaviour
     void Start()
     {
         State = GameState.WaveStart;
+        HidePrototypes();
 
     }
     public void Initialize()
     {
         InitSizeColorDictionary();
         TRandom = new System.Random(RandomSeed);
-        if(!isRandomSeedInitialized) {
-            Debug.Log("Initializing Advice Randomizers");
-            isRandomSeedInitialized = true;
-            AIDecisionRandomizer = new System.Random(AIRandomizerSeed);
-            HumanDecisionRandomizer = new System.Random(HumanRandomizerSeed);
-        }
-        // HidePrototypes(); TODO: Remove this issue!
 
+        ReadGameParametersFromServer();
         StartWave();
+
+    }
+    
+    public List<ParameterHolder> Parameters = new List<ParameterHolder>();
+
+    public void ReadGameParametersFromServer()
+    {
+        string content = FileSystems.inst.ReadFileFromServer("Parameters.csv");
+        StartCoroutine("WaitAndExtractParamsFromString");
+    }
+
+    IEnumerator WaitAndExtractParamsFromString()
+    {
+        yield return new WaitForSeconds(2.0f);//Can do better than this.
+        Parameters.Clear();
+        using(StringReader sr = new StringReader(FileSystems.inst.FileContent)) {
+            string line;
+            while((line = sr.ReadLine()) != null) {
+                string[] cells = line.Split(',');
+                ParameterHolder ph = new ParameterHolder();
+                ph.parameterName = (ParameterNames) int.Parse(cells[0].Trim());
+                ph.parameterValue = float.Parse(cells[2].Trim());
+                Parameters.Add(ph);
+            }
+        }
+        if(Parameters.Count > 0) 
+            SetGameParameters();
+    }
+    
+    public void SetGameParameters()
+    {
+        foreach(ParameterHolder ph in Parameters) {
+            switch(ph.parameterName) {
+                case ParameterNames.MaxWaves:
+                    maxWaves = (int) ph.parameterValue;
+                    break;
+                case ParameterNames.Penalty:
+                    penalty = (int) ph.parameterValue;
+                    break;
+                case ParameterNames.MaliciousPacketProbability:
+                    foreach(Source source in Sources) {
+                        source.malPacketProbability = ph.parameterValue;
+                    }
+                    break;
+                case ParameterNames.IntervalBetweenPackets:
+                    Sources[0].timeInterval = ph.parameterValue;
+                    Sources[1].timeInterval = ph.parameterValue * 2;
+                    Sources[2].timeInterval = ph.parameterValue * 2;
+                    break;
+                case ParameterNames.MaxNumberOfPackets:
+                    Sources[0].maxPackets = (int) ph.parameterValue;
+                    Sources[1].maxPackets = (int) ph.parameterValue / 2;
+                    Sources[2].maxPackets = (int) ph.parameterValue / 2;
+                    break;
+                case ParameterNames.MinIntervalBetweenRuleChanges:
+                    foreach(Destination destination in Destinations) {
+                        destination.minTimeInterval = (int) ph.parameterValue;
+                    }
+                    break;
+                case ParameterNames.MaxIntervalBetweenRuleChanges:
+                    foreach(Destination destination in Destinations) {
+                        destination.maxTimeInterval = (int) ph.parameterValue;
+                    }
+                    break;
+                //----------------------------------------------------
+                case ParameterNames.AICorrectProbability:
+                    RuleSpecButtonManager.inst.AICorrectAdviceProbability = ph.parameterValue;
+                    break;
+                case ParameterNames.HumanCorrectProbability:
+                    RuleSpecButtonManager.inst.HumanCorrectAdviceProbability = ph.parameterValue;
+                    break;
+                case ParameterNames.MinHumanAdviceTimeInSeconds:
+                    RuleSpecButtonManager.inst.MinHumanTime = ph.parameterValue;
+                    break;
+                case ParameterNames.MaxHumanAdviceTimeInSeconds:
+                    RuleSpecButtonManager.inst.MaxHumanTime = ph.parameterValue;
+                    break;
+                case ParameterNames.MinAIAdviceTimeInSeconds:
+                    RuleSpecButtonManager.inst.MinAITime = ph.parameterValue;
+                    break;
+                case ParameterNames.MaxAIAdviceTimeInSeconds:
+                    RuleSpecButtonManager.inst.MaxAITime = ph.parameterValue;
+                    break;
+                //----------------------------------------------------
+                case ParameterNames.AIRandomSeed:
+                    RuleSpecButtonManager.inst.AIRandomizerSeed = (int) ph.parameterValue;//4321
+                    break;
+                case ParameterNames.HumanRandomSeed:
+                    RuleSpecButtonManager.inst.HumanRandomizerSeed = (int) ph.parameterValue;//6789
+                    break;
+
+                default:
+                    Debug.Log("Unknown game parameter name: " + ph.parameterName + ": " + ph.parameterValue);
+                    break;
+            }
+        }
     }
 
     [ContextMenu("TestFlip")]
@@ -129,48 +250,45 @@ public class NewGameManager : MonoBehaviour
         if(endedSources >= Sources.Count) { //}|| isCorrectIndex >= isCorrectList.Count) {
             EndWave();
         }
-        //if(State == GameState.InWave) {
-        //BlackhatAI.inst.DoWave();
-        //}
-        //if(State == GameState.FlushingSourcesToEndWave)
-        //if(Sources[0].gameObject.GetComponentsInChildren<TPacket>().Length <= 0)
-        //EndWave();
 
-    }
+        if(UnityEngine.InputSystem.Keyboard.current.f10Key.wasReleasedThisFrame)
+            Time.timeScale = 1.0f - Time.timeScale;
+
+            //if(State == GameState.InWave) {
+            //BlackhatAI.inst.DoWave();
+            //}
+            //if(State == GameState.FlushingSourcesToEndWave)
+            //if(Sources[0].gameObject.GetComponentsInChildren<TPacket>().Length <= 0)
+            //EndWave();
+
+        }
 
     //-------------------------------------------------------------------------------------------------
-    public Difficulty difficulty;
+    /// <summary>
+    /// Deprecated
+    /// </summary>
+    /*
+     * public Difficulty difficulty;
     public List<DifficultyParameters> difficultyParamaters = new List<DifficultyParameters>();
     public void SetDifficulty(Difficulty level)
     {
         Debug.Log("Setting difficulty to: " + level);
         difficulty = level;
         DifficultyParameters parms = difficultyParamaters.Find(x => x.levelName == level);
-        foreach(Destination destination in Destinations) {
-            destination.timeInterval = parms.meanTimeInterval;
-            destination.timeSpread = parms.timeSpread;
+        foreach(TDestination destination in Destinations) {
+            destination.minTimeInterval = parms.meanTimeInterval;
+            destination.maxTimeInterval = parms.timeSpread;
             destination.initTime = parms.initTime;
         }
 
     }
-
+    */
     //-------------------------------------------------------------------------------------------------
 
 
     public int RandomSeed = 1234;
-    public int AIRandomizerSeed = 4321;
-    public int HumanRandomizerSeed = 6789;
-
-    public float CorrectAdviceProbability = 0.8f;
-    public float HumanCorrectAdviceProbability = 0.8f;
-    public float AICorrectAdviceProbability = 0.8f;
-    public static bool isRandomSeedInitialized = false;
-
-
-    //int maxSpawns = 40;
+    //public float AICorrectAdviceProbability = 0.8f;
     public System.Random TRandom;
-    public System.Random AIDecisionRandomizer;
-    public System.Random HumanDecisionRandomizer;
 
     //----------------------------------------------------------------------------------------------------
     /// <summary>
@@ -183,16 +301,7 @@ public class NewGameManager : MonoBehaviour
         return (TRandom.NextDouble() < prob);
     }
 
-    /// <summary>
-    /// Like Flip but takes a System.Random as first param
-    /// </summary>
-    /// <param name="Randomizer"></param>
-    /// <param name="prob"> Probability of returning true </param> 
-    /// <returns></returns>
-    public bool AdviceRandomizerFlip(System.Random Randomizer, float prob)
-    {
-        return (Randomizer.NextDouble() < prob);
-    }
+
 
     //----------------------------------------------------------------------------------------------------
     public int maxWaves = 3;
@@ -200,14 +309,13 @@ public class NewGameManager : MonoBehaviour
 
     public void StartWave()
     {
-        // State = GameState.WaveStart;
-        // SetDifficulty(NewLobbyManager.gameDifficulty);
+        //SetDifficulty(NewLobbyMgr.gameDifficulty);
 
-        Debug.Log("Startwave: " + currentWaveNumber + TaiserEventTypes.StartWave.ToString());
-        InstrumentManager.inst.AddRecord(TaiserEventTypes.StartWave.ToString());
-
+        Debug.Log("Startwave: " + currentWaveNumber);
+        // InstrumentMgr.inst.AddRecord(TaiserEventTypes.StartWave.ToString());
+        SetWaveNumberEffect(Color.green);
         CountdownLabel.text = timerSecs.ToString("0");
-        InvokeRepeating("CountdownLabeller", 0.1f, 1f);
+        InvokeRepeating("CountdownLabeller", 0.1f, 1.1f);
     }
 
     int timerSecs = 5;
@@ -278,7 +386,7 @@ public class NewGameManager : MonoBehaviour
     /// by counting number of times this method is called by sources.
     /// If this is > number of sources, reset to 0 and actually end the wave
     /// </summary>
-    int endedSources = 0;
+    public int endedSources = 0;
     public void EndSpawningAtSources()
     {
         endedSources += 1;
@@ -298,7 +406,7 @@ public class NewGameManager : MonoBehaviour
     public Text AnotherWaveAwaitsMessageText;
     public void EndWave()
     {
-//        Debug.Log("Ending Wave: " + currentWaveNumber + ", isCorrectIndex: " + isCorrectIndex + ", endedSrcs: " + endedSources);
+        //Debug.Log("Ending Wave: " + currentWaveNumber + ", isCorrectIndex: " + isCorrectIndex + ", endedSrcs: " + endedSources);
         Debug.Log("Ending Wave: " + currentWaveNumber + ", endedSrcs: " + endedSources);
         State = GameState.WaveEnd;
         ResetVars();
@@ -316,7 +424,7 @@ public class NewGameManager : MonoBehaviour
         }
         currentWaveNumber += 1;
         if(currentWaveNumber >= maxWaves)
-            AnotherWaveAwaitsMessageText.text = "Wave Goodbye! Bye Bye now...";
+            AnotherWaveAwaitsMessageText.text = "You are done for now. Take a break.";
         else
             AnotherWaveAwaitsMessageText.text = "Get Ready for Wave " + (1+currentWaveNumber).ToString("0")
                 + " of " + maxWaves.ToString("0");
@@ -330,11 +438,33 @@ public class NewGameManager : MonoBehaviour
     public Vector3 waveEndWhitehatScoreScaler = Vector3.one;
     public void SetWaveEndScores()
     {
-        SetScores(BlackhatScore, WhitehatScore);
-        waveEndBlackhatScoreScaler.y = BlackhatScore;
-        blackhatBarPanel.localScale = waveEndBlackhatScoreScaler;
-        waveEndWhitehatScoreScaler.y = WhitehatScore;
-        whiteHatBarPanel.localScale = waveEndWhitehatScoreScaler;
+        //SetScores(BlackhatScore, WhitehatScore);
+        //waveEndBlackhatScoreScaler.y = BlackhatScore;
+        //blackhatBarPanel.localScale = waveEndBlackhatScoreScaler;
+        //waveEndWhitehatScoreScaler.y = WhitehatScore;
+        //whiteHatBarPanel.localScale = waveEndWhitehatScoreScaler;
+
+        WhitehatSlider.maxValue += 50;
+        BlackhatSlider.maxValue += 50;
+
+
+    }
+
+    public List<RectTransform> WaveNumberIndicatorCirclePanels = new List<RectTransform>();
+    public RectTransform WaveNumberIndicatorRoot;
+
+    [ContextMenu("FindWaveNumberIndicators")]
+    public void FindWaveNumberIndicators()
+    {
+        WaveNumberIndicatorCirclePanels.Clear();
+        foreach(RectTransform rt in WaveNumberIndicatorRoot.GetComponentsInChildren<RectTransform>()) {
+            WaveNumberIndicatorCirclePanels.Add(rt);
+        }
+    }
+
+    public void SetWaveNumberEffect(Color col)
+    {
+        WaveNumberIndicatorCirclePanels[currentWaveNumber].GetComponent<Image>().color = col;
     }
 
     void WaitToStartNextWave()
@@ -345,7 +475,7 @@ public class NewGameManager : MonoBehaviour
         if(currentWaveNumber < maxWaves) {
             StartWave();//Startwave unpauses destination clocks
         } else {
-            InstrumentManager.inst.WriteSession();
+            // InstrumentMgr.inst.WriteSession();
             State = GameState.Menu;
             ResetGame();
         }
@@ -359,6 +489,7 @@ public class NewGameManager : MonoBehaviour
         foreach(Source source in Sources) {
             source.Reset();
         }
+        penaltyCount = 0;
     }
 
     
@@ -369,7 +500,6 @@ public class NewGameManager : MonoBehaviour
     {
         foreach(GameObject go in ToHide) {
             foreach(MeshRenderer mr in go.GetComponentsInChildren<MeshRenderer>()) {
-                // Debug.Log("MR:::::::: " + mr.gameObject.name.Contains("CubePath"));
                 if(!mr.gameObject.name.Contains("CubePath"))
                     mr.enabled = false;
             }
@@ -502,10 +632,11 @@ public class NewGameManager : MonoBehaviour
         PacketExamining,
         BeingAdvised,
         Menu,
+        Paused,
         None
     }
     public Panel PacketExaminerPanel;
-    // public Panel StartPanel;
+    public Panel StartPanel;
     public Panel WatchingPanel;
     public Panel WaveStartPanel;
     public Panel WaveEndPanel;
@@ -518,15 +649,18 @@ public class NewGameManager : MonoBehaviour
         get { return _state; }
         set
         {
-            // PriorState = _state;
+            PriorState = _state;
             _state = value;
 
             WaveStartPanel.isVisible = (_state == GameState.WaveStart);
             WaveEndPanel.isVisible = (_state == GameState.WaveEnd);
-            
+
             PacketExaminerPanel.isVisible = (_state == GameState.PacketExamining);
             // StartPanel.isVisible = (_state == GameState.Start);
             WatchingPanel.isVisible = (_state == GameState.InWave || _state == GameState.FlushingSourcesToEndWave);
+            ScorePanel.gameObject.SetActive(_state == GameState.WaveEnd
+                || _state == GameState.InWave
+                || _state == GameState.FlushingSourcesToEndWave);
             //add menu panel
             MenuPanel.isVisible = (_state == GameState.Menu);
 
@@ -544,99 +678,7 @@ public class NewGameManager : MonoBehaviour
         }
     }
 
-    //-------------------------------------------------------------------------------------
-    //--- When a packet button in the examining panel is clicked
-
-    public void OnPacketClicked(LightWeightPacket packet)
-    {
-        DisplayPacketInformation(packet, ClickedPacketRuleTextList); // expand on this
-        InstrumentManager.inst.AddRecord(TaiserEventTypes.PacketInspect.ToString(), packet.ToString());
-    }
-
-    public void DisplayPacketInformation(LightWeightPacket packet, List<Text> RuleTextList)
-    {
-        RuleTextList[0].text = packet.size.ToString();
-        RuleTextList[0].fontSize = FontSizes[(int) packet.size];
-        RuleTextList[1].text = packet.color.ToString();
-        RuleTextList[1].color = TextColors[(int) packet.color];
-        RuleTextList[2].text = packet.shape.ToString();
-    }
-
-    public void ClearPacketInformation(List<Text> RuleTextList)
-    {
-        RuleTextList[0].text = "";
-        RuleTextList[1].text = "";
-        RuleTextList[2].text = "";
-
-    }
-
-    public List<int> FontSizes = new List<int>();
-    public List<Color> TextColors = new List<Color>();
-
-    public List<Text> ClickedPacketRuleTextList = new List<Text>();
-    public List<Text> AdvisorRuleTextList = new List<Text>();
-
-
-    public GameObject PacketRuleTextListRoot;
-    public GameObject AdvisorRuleTextListRoot;
-    [ContextMenu("SetupRuleTextLists")]
-    public void SetupRuleTextLists()
-    {
-        ClickedPacketRuleTextList.Clear();
-        foreach(Text t in PacketRuleTextListRoot.GetComponentsInChildren<Text>()) {
-            ClickedPacketRuleTextList.Add(t);
-        }
-        AdvisorRuleTextList.Clear();
-        foreach(Text t in AdvisorRuleTextListRoot.GetComponentsInChildren<Text>()) {
-            AdvisorRuleTextList.Add(t);
-        }
-    }
-
-    //-------------------------------------------------------------------------------------
-    //-------------------------------------------------------------------------------------
-    // PROBLEM: Double indirection to handle design issues
-
-    public Text FilterRuleSpecTitle;
-    //public List<bool> isCorrectList = new List<bool>(); // which advice is correct, set by programmer in editor
-    //public int isCorrectIndex = 0;
-    public Text teammateNameText;
-    public float DelayInSeconds = 3.5f;
-
-    public void OnAttackableDestinationClicked(Destination destination)
-    {
-        destination.isBeingExamined = true;
-        PacketButtonManager.inst.SetupPacketButtonsForInspection(destination); // Setup packet buttons on the top panel
-        ClearPacketInformation(ClickedPacketRuleTextList);
-
-
-        //RuleSpecButtonMgr.inst.SetDestAndAdvisorRule(destination, isCorrectList[isCorrectIndex++]);
-        StartCoroutine(ProvideAdviceWithDelay(destination));
-        
-        FilterRuleSpecTitle.text = destination.inGameName;
-        InstrumentManager.inst.AddRecord(TaiserEventTypes.MaliciousDestinationClicked.ToString(), destination.inGameName);
-        State = GameState.PacketExamining;
-    }
-
-    IEnumerator ProvideAdviceWithDelay(Destination destination)
-    {
-        ClearPacketInformation(AdvisorRuleTextList);
-        RuleSpecButtonManager.inst.AcceptAdviceButton.interactable = false;
-        yield return new WaitForSeconds(DelayInSeconds);
-        RuleSpecButtonManager.inst.SetDestAndAdvisorRule(destination,
-            // (NewLobbyManager.teammateSpecies == PlayerSpecies.AI ?
-            // AdviceRandomizerFlip(AIDecisionRandomizer, AICorrectAdviceProbability) :
-            AdviceRandomizerFlip(HumanDecisionRandomizer, HumanCorrectAdviceProbability));
-        SetTeammateName();
-        DisplayPacketInformation(RuleSpecButtonManager.inst.AdvisorRuleSpec, AdvisorRuleTextList);
-        RuleSpecButtonManager.inst.AcceptAdviceButton.interactable = true;
-    }
-
-    public void SetTeammateName()
-    {
-        // teammateNameText.text = NewLobbyManager.teammateName + "'s advice";
-                teammateNameText.text =  "'s advice";
-
-    }
+    
 
     public void ApplyFirewallRule(Destination destination, LightWeightPacket packet, bool isAdvice)
     {
@@ -644,35 +686,56 @@ public class NewGameManager : MonoBehaviour
 
         destination.FilterOnRule(packet);
 
-        if(packet.isEqual(destination.MaliciousRule)) {
-            if(isAdvice)
-                InstrumentManager.inst.AddRecord(TaiserEventTypes.AdvisedFirewallCorrectAndSet.ToString());
-            else
-                InstrumentManager.inst.AddRecord(TaiserEventTypes.UserBuiltFirewallCorrectAndSet.ToString());
-            // EffectsManager.inst.GoodFilterApplied(destination, packet);
-            //NewAudioMgr.inst.PlayOneShot(NewAudioMgr.inst.GoodFilterRule);
-        } else {
-            if(isAdvice)
-                InstrumentManager.inst.AddRecord(TaiserEventTypes.AdvisedFirewallIncorrectAndSet.ToString());
-            else
-                InstrumentManager.inst.AddRecord(TaiserEventTypes.UserBuiltFirewallIncorrectAndSet.ToString());
-            // EffectsMgr.inst.BadFilterApplied(destination, packet);
-            //NewAudioMgr.inst.source.PlayOneShot(NewAudioMgr.inst.BadFilterRule);
-        }
+        // if(packet.isEqual(destination.MaliciousRule)) {
+        //     if(isAdvice)
+        //         InstrumentMgr.inst.AddRecord(TaiserEventTypes.AdvisedFirewallCorrectAndSet.ToString());
+        //     else
+        //         InstrumentMgr.inst.AddRecord(TaiserEventTypes.UserBuiltFirewallCorrectAndSet.ToString());
+        //     EffectsMgr.inst.GoodFilterApplied(destination, packet);
+        //     //NewAudioMgr.inst.PlayOneShot(NewAudioMgr.inst.GoodFilterRule);
+        // } else {
+        //     if(isAdvice)
+        //         InstrumentMgr.inst.AddRecord(TaiserEventTypes.AdvisedFirewallIncorrectAndSet.ToString());
+        //     else
+        //         InstrumentMgr.inst.AddRecord(TaiserEventTypes.UserBuiltFirewallIncorrectAndSet.ToString());
+        //     EffectsMgr.inst.BadFilterApplied(destination, packet);
+        //     if(shouldApplyPenalty)
+        //         ApplyScorePenalty();
+        //     //NewAudioMgr.inst.source.PlayOneShot(NewAudioMgr.inst.BadFilterRule);
+        // }
 
         destination.isBeingExamined = false;
         State = GameState.InWave;
     }
 
-
     //-------------------------------------------------------------------------------------
-    public RectTransform WhitehatWatchingScorePanel;
-    public RectTransform BlackhatWatchingScorePanel;
+    //public RectTransform WhitehatWatchingScorePanel;
+    //public RectTransform BlackhatWatchingScorePanel;
     public float minScaley = 0.0f;
     public void SetScores(float blackhatScore, float whitehatScore)
     {
-        SetBars(BlackhatWatchingScorePanel, blackhatScore, WhitehatWatchingScorePanel, whitehatScore);
+        //SetBars(BlackhatWatchingScorePanel, blackhatScore, WhitehatWatchingScorePanel, whitehatScore);
+        SetSliders();
+
     }
+
+    public RectTransform ScorePanel;
+    public Slider WhitehatSlider;
+    public Text WhitehatCountText;
+    public Slider BlackhatSlider;
+    public Text BlackhatCountText;
+
+    public Slider WaveProgressSlider;
+    public void SetSliders()
+    {
+        WhitehatSlider.value = totalMaliciousFilteredCount;
+        WhitehatCountText.text = totalMaliciousFilteredCount.ToString("00");
+        BlackhatSlider.value = (int) BlackhatScore; // totalMaliciousUnFilteredCount;
+        BlackhatCountText.text = ((int) BlackhatScore).ToString("00");//totalMaliciousUnFilteredCount.ToString("00");
+        WaveProgressSlider.value = Sources[0].packetCount / (float) Sources[0].maxPackets;
+
+    }
+
     public Vector3 inWaveWhitehatScaler = Vector3.one;
     public Vector3 inWaveBlackhatScaler = Vector3.one;
     public void SetBars(RectTransform blackhatBarPanel, float blackhatScore, 
@@ -702,12 +765,41 @@ public class NewGameManager : MonoBehaviour
             totalMaliciousCount += destination.maliciousCount;
         }
 
-        WhitehatScore = totalMaliciousFilteredCount / (totalMaliciousCount + 0.000001f);
-        BlackhatScore = totalMaliciousUnFilteredCount / (totalMaliciousCount + 0.000001f);
+        //WhitehatScore = totalMaliciousFilteredCount / (totalMaliciousCount + 0.000001f);
+        //BlackhatScore = totalMaliciousUnFilteredCount / (totalMaliciousCount + 0.000001f);
+        WhitehatScore = totalMaliciousFilteredCount;
+        BlackhatScore = totalMaliciousUnFilteredCount + (penalty * penaltyCount);
         SetScores(BlackhatScore, WhitehatScore);
     }
 
+    public bool shouldApplyPenalty = true;
+    public int penalty = 20;
+    public int penaltyCount = 0;
+    public RectTransform BlackFillArea;
+    public void ApplyScorePenalty()
+    {
+        penaltyCount++;
+        SetSliders();
+        WhitehatSlider.maxValue += penalty/2;
+        BlackhatSlider.maxValue += penalty/2;
+        BlackFillArea.GetComponent<Image>().color = Color.red;
+        StartCoroutine(ToggleFillColor());
+    }
 
+    public bool colorToggle = true;
+
+    IEnumerator ToggleFillColor()
+    {
+        for(int i = 0; i < penalty; i++) {
+            if(colorToggle) {
+                BlackFillArea.GetComponent<Image>().color = Color.red;
+            } else {
+                BlackFillArea.GetComponent<Image>().color = Color.black;
+            }
+            colorToggle = !colorToggle;
+            yield return new WaitForSeconds(0.25f);
+        }
+    }
 
     //-------------------------------------------------------------------------------------
     public void OnMenuBackButton()
@@ -727,7 +819,7 @@ public class NewGameManager : MonoBehaviour
 
     public void OnMenuButtonClicked()
     {
-        InstrumentManager.inst.AddRecord(TaiserEventTypes.Menu.ToString());
+        // InstrumentMgr.inst.AddRecord(TaiserEventTypes.Menu.ToString());
         State = GameState.Menu;
     }
 

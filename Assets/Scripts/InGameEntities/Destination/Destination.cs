@@ -26,14 +26,14 @@ public class Destination : MonoBehaviour
         maliciousCube.transform.localScale = originalCubeScale;
         isBeingExamined = false;
         isFilterValid = false;
-        dt = timeInterval;
+        dt = minTimeInterval;
         destinationState = DestinationStates.Idle;
     }
 
     public void StartWave()
     {
         destinationState = DestinationStates.Up;
-        dt = timeInterval;
+        dt = minTimeInterval;
         MaliciousRule = BlackhatAI.inst.CreateMaliciousPacketRuleForDestination(this);
         isBeingExamined = false;
         isFilterValid = false;// ?
@@ -57,8 +57,8 @@ public class Destination : MonoBehaviour
     public LightWeightPacket MaliciousRule;
     public float dt = 0;
     public int initTime = 20;
-    public int timeInterval = 17; //For mal rule change, set this in editor to tune game, every 25 seconds change rule
-    public int timeSpread = 5;
+    public int minTimeInterval = 12; //For mal rule change, set this in editor to tune game, every 25 seconds change rule
+    public int maxTimeInterval = 22;
     public bool isBeingExamined = false;
 
     public DestinationStates destinationState = DestinationStates.Idle;
@@ -83,7 +83,7 @@ public class Destination : MonoBehaviour
 
     float GenerateTimeInterval()
     {
-        return (float) NewGameManager.inst.TRandom.Next(timeInterval - timeSpread, timeInterval + timeSpread);
+        return (float) NewGameManager.inst.TRandom.Next(minTimeInterval, maxTimeInterval);
     }
 
     public int myId;
@@ -104,16 +104,16 @@ public class Destination : MonoBehaviour
                 maliciousUnfilteredCount += 1;
                 GrowCube();
                 TLogPacket(tPack);
-                // EffectsManager.inst.MaliciousUnfilteredPacket(this, tPack.packet);
-                InstrumentManager.inst.AddRecord(TaiserEventTypes.MaliciousPacketUnfiltered_BadForUs.ToString(), inGameName);
+                // EffectsMgr.inst.MaliciousUnfilteredPacket(this, tPack.packet);
+                // InstrumentMgr.inst.AddRecord(TaiserEventTypes.MaliciousPacketUnfiltered_BadForUs.ToString(), inGameName);
                 //NewAudioMgr.inst.source.PlayOneShot(NewAudioMgr.inst.maliciousUnfiltered);
 
             } else if (tPack.packet.isMalicious && isPacketFiltered(tPack)) {
                 maliciousCount += 1;
                 maliciousFilteredCount += 1;
                 ShrinkCube();
-                // EffectsManager.inst.MaliciousFilteredPacket(this, tPack.packet);
-                InstrumentManager.inst.AddRecord(TaiserEventTypes.MaliciousPacketFiltered_GoodForUs.ToString(), inGameName);
+                // EffectsMgr.inst.MaliciousFilteredPacket(this, tPack.packet);
+                // InstrumentMgr.inst.AddRecord(TaiserEventTypes.MaliciousPacketFiltered_GoodForUs.ToString(), inGameName);
                 //NewAudioMgr.inst.source.PlayOneShot(NewAudioMgr.inst.maliciousFiltered);
 
             } // ! malicious but filtered ==> oopsie penalty in score

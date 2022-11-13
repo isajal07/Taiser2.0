@@ -29,6 +29,7 @@ public class NewLobbyManager : MonoBehaviour
     {
         StartOrQuit = 0,
         EnterAlias,
+        Admin,
         CreateOrJoin,
         MissionObjective,
         // ChooseDifficulty,
@@ -40,6 +41,7 @@ public class NewLobbyManager : MonoBehaviour
     public Panel StartPanel;
     public Panel EnterAliasPanel;
     // public Panel CreateOrJoinGamePanel;
+    public Panel AdminPanel;
     public Panel MissionObjectivePanel;
     // public Panel ChooseDifficultyPanel;
     public Panel WaitingForPlayersPanel;
@@ -52,6 +54,7 @@ public class NewLobbyManager : MonoBehaviour
             _state = value;
             StartPanel.isVisible = (_state == LobbyState.StartOrQuit);
             EnterAliasPanel.isVisible = (_state == LobbyState.EnterAlias);
+            AdminPanel.isVisible = (_state == LobbyState.Admin);
             MissionObjectivePanel.isVisible = (_state == LobbyState.MissionObjective);
             // ChooseDifficultyPanel.isVisible = (_state == LobbyState.ChooseDifficulty);
             WaitingForPlayersPanel.isVisible = (_state == LobbyState.WaitingForPlayers);
@@ -83,6 +86,7 @@ public class NewLobbyManager : MonoBehaviour
     public PlayerRoles PlayerRole;
     public PlayerSpecies PlrSpecies;
     public static TaiserPlayer thisPlayer;
+    public static PlayerSpecies teammateSpecies;
 
     public void OnJoinButton()
     {
@@ -94,11 +98,15 @@ public class NewLobbyManager : MonoBehaviour
 
         // thisPlayer = new TaiserPlayer(PlayerName, PlayerRole, PlrSpecies);
         // // gameDifficulty = Difficulty.Novice;
-        // teammateSpecies = PlayerSpecies.Human;
-
+        teammateSpecies = PlayerSpecies.Human;
         // GameName = PlayerName + "_Taiser";
         // GameNamePlaceholderText.text = GameName;        
-        State = LobbyState.MissionObjective;
+
+        if(PlayerName.Trim().ToLower().Contains("admin")) {
+            State = LobbyState.Admin;
+        } else {
+            State = LobbyState.MissionObjective;
+        }
     }    
     //------------------------------------------------------------------
     
@@ -132,6 +140,7 @@ public class NewLobbyManager : MonoBehaviour
 
     public async void CreateGameAndWaitForPlayers()
     {
+
         bool RandBool = utils.generateBoolean();
 
         PlayerNameText.text = PlayerName;
@@ -168,6 +177,12 @@ public class NewLobbyManager : MonoBehaviour
     public void onBackToMissionObjectivePanel(){
         State = LobbyState.MissionObjective;
     }
+
+    public void OnAdminStoreButton()
+        {
+            AdminManager.inst.WriteParamsToServer();
+            State = LobbyState.StartOrQuit;
+        }
     
     //---------------------------------------------------------------------
 
