@@ -1506,9 +1506,9 @@ MonoBehaviour:
   FilterRuleSpecTitle: {fileID: 1524512749318814617}
   FontSizes: 140000001e00000028000000
   TextColors:
-  - {r: 0.0627451, g: 1, b: 0.12941177, a: 0}
-  - {r: 0.08235294, g: 0.3529412, b: 1, a: 0}
-  - {r: 0.9647059, g: 0.08235294, b: 1, a: 0}
+  - {r: 0.0627451, g: 1, b: 0.12941177, a: 1}
+  - {r: 0.08235294, g: 0.3529412, b: 1, a: 1}
+  - {r: 0.9647059, g: 0.08235294, b: 1, a: 1}
   ClickedPacketRuleTextList:
   - {fileID: 9183802355904224981}
   - {fileID: 9183802356598160140}
@@ -9515,7 +9515,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Accept Teammate Advice
+  m_Text: Set firewall
 --- !u!224 &568907226032905964
 RectTransform:
   m_ObjectHideFlags: 0
@@ -17913,7 +17913,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Set FireWall From My Rule
+  m_Text: SET FIREWALL
 --- !u!224 &568907227620631468
 RectTransform:
   m_ObjectHideFlags: 0
