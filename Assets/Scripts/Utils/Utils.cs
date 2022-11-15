@@ -11,9 +11,9 @@ public class Utils : MonoBehaviour
         return Random.Range(0, 2) != 0;
     }
 
-    public int generateWaitingTime()
+    public float generateWaitingTime()
     {
-        int[] times = new[] { 1000,  1500, 2000, 2500, 3000 };
+        float[] times = new[] { 1.0f,  1.5f, 2.0f, 2.5f, 3.0f };
         int indexOfTime = Random.Range(0, 4);
         return times[indexOfTime];
     }

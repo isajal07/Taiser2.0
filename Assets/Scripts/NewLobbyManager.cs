@@ -114,7 +114,7 @@ public class NewLobbyManager : MonoBehaviour
     public void onUnderstoodButton()
     {
         State = LobbyState.WaitingForPlayers;
-        CreateGameAndWaitForPlayers();
+        StartCoroutine("CreateGameAndWaitForPlayers");
     }
 
     public void onBackToEnterAliasPanel(){
@@ -138,7 +138,7 @@ public class NewLobbyManager : MonoBehaviour
     public GameObject StartButton;
     public Text ReadyMessage;
 
-    public async void CreateGameAndWaitForPlayers()
+    IEnumerator CreateGameAndWaitForPlayers()
     {
 
         bool RandBool = utils.generateBoolean();
@@ -149,18 +149,18 @@ public class NewLobbyManager : MonoBehaviour
         Opponent1NameText.text = utils.generatePlayerName();
         Opponent2NameText.text = utils.generatePlayerName();
         
-        int opponent1WaitingTime = utils.generateWaitingTime();
-        int teamateWaitingTime = utils.generateWaitingTime();
+        float opponent1WaitingTime = utils.generateWaitingTime();
+        float teamateWaitingTime = utils.generateWaitingTime();
 
-        await Task.Delay(teamateWaitingTime);
+        yield return new WaitForSeconds(teamateWaitingTime);
         HumanTeammate.SetActive(true);
         
-        await Task.Delay(opponent1WaitingTime);
+        yield return new WaitForSeconds(opponent1WaitingTime);
         Opponent1.SetActive(true);
         
         if (RandBool) {
-            int opponent2WaitingTime = utils.generateWaitingTime();
-            await Task.Delay(opponent2WaitingTime);
+            float opponent2WaitingTime = utils.generateWaitingTime();
+            yield return new WaitForSeconds(opponent2WaitingTime);
             Opponent2.SetActive(RandBool);
         }
 
