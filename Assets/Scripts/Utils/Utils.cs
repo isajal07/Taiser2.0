@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Threading.Tasks;
+using System.Linq;
 
 public class Utils : MonoBehaviour
 {
@@ -23,5 +24,11 @@ public class Utils : MonoBehaviour
         List<string> HumanNames = new List<string> { "Alex", "Drew", "Kennedy", "Jordan", "Emerson", "Morgan", "Kit", "Sol", "Revel", "Angel", "Riley", "Peyton", "Taylor", "Casey", "Charlie", "Blake" };
         int choice = Random.Range(0, HumanNames.Count);
         return HumanNames[choice];
+    }
+
+    public List<string> RandomizeListodButtons(List<string> ListToRandomize) {
+        System.Random rand = new System.Random();
+        List<string> randomizedButtons = ListToRandomize.OrderBy(_ => rand.Next()).ToList();
+        return randomizedButtons;
     }
 }

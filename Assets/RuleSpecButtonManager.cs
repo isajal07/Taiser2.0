@@ -155,8 +155,9 @@ public class RuleSpecButtonManager : MonoBehaviour
 
     public void OnAttackableDestinationClicked(Destination destination)
     {
-        NewGameManager.inst.State = GameState.PacketExamining; //To show panel
-
+        NewGameManager.inst.State = GameState.ChooseAdvisorOrMe; //To show panel
+        NewGameManager.inst.RandomizeAdvisorsOrMeButton();
+        
         CurrentDestination = destination;
         CurrentDestination.isBeingExamined = true;
         FilterRuleSpecTitle.text = CurrentDestination.inGameName;
@@ -340,6 +341,7 @@ public class RuleSpecButtonManager : MonoBehaviour
     {
         AcceptAdviceButton.interactable = true;
         Spinner.gameObject.SetActive(false);
+        //TODO add the name of teamate: ai or human..
         TeammateNameText.text = "'s advice";
 
     }

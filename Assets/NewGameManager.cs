@@ -1,10 +1,10 @@
+using System;
 using System.CodeDom;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
-
 //-------------------------------------------------------------------------------------------
 [System.Serializable]
 public class LightWeightPacket
@@ -113,6 +113,8 @@ public class NewGameManager : MonoBehaviour
 {
 
     public static NewGameManager inst;
+    public Utils utils;
+
     private void Awake()
     {
         inst = this;
@@ -125,17 +127,85 @@ public class NewGameManager : MonoBehaviour
     {
         State = GameState.WaveStart;
         HidePrototypes();
-
     }
     public void Initialize()
     {
         InitSizeColorDictionary();
         TRandom = new System.Random(RandomSeed);
-
+        utils = new Utils();
         ReadGameParametersFromServer();
         StartWave();
 
     }
+
+    //-----------------------------------------------------------------------------
+    [Header("Choosing Advisor or Me")]
+    public List<Button> AdvisorAndMeButtons = new List<Button>();
+   
+    public List<GameObject> FilterPanelItemsToHide = new List<GameObject>();
+
+    public enum AdvisorsAndMe {
+        me = 0,
+        AI,
+        Human,
+    }
+    public void RandomizeAdvisorsOrMeButton(){
+        List<string> buttonStrings = new List<string>( new string[] { "Me", "Choose AI teammate", "Choose Human teammate" });
+        List<string> RandomizedButtons = utils.RandomizeListodButtons(buttonStrings);
+        
+        AdvisorAndMeButtons[0].GetComponentInChildren<Text>().text =  RandomizedButtons[0];
+        AdvisorAndMeButtons[1].GetComponentInChildren<Text>().text =  RandomizedButtons[1];
+        AdvisorAndMeButtons[2].GetComponentInChildren<Text>().text =  RandomizedButtons[2];
+        
+        for( int index = 0; index < RandomizedButtons.Count; index++) {
+            //Clear Delegates
+            AdvisorAndMeButtons[index].onClick.RemoveAllListeners();
+            
+            if (RandomizedButtons[index] == buttonStrings[0]) {
+                 AdvisorAndMeButtons[index].onClick.AddListener(delegate{OnAdvisorOrMeClicked(0);});
+            } else if(RandomizedButtons[index] == buttonStrings[1]) {
+                AdvisorAndMeButtons[index].onClick.AddListener(delegate{OnAdvisorOrMeClicked(1);});
+            } else {
+                AdvisorAndMeButtons[index].onClick.AddListener(delegate{OnAdvisorOrMeClicked(2);});
+            }
+        }
+    }
+
+    public void OnAdvisorOrMeClicked(int n)
+    {
+        State = GameState.PacketExamining;
+        foreach(GameObject item in FilterPanelItemsToHide)
+        {
+             item.SetActive(true);
+        }
+        if (n == (int) AdvisorsAndMe.me)
+        {
+            FilterPanelItemsToHide[3].SetActive(false);
+            FilterPanelItemsToHide[6].SetActive(false);
+        } else if (n == (int) AdvisorsAndMe.AI) {
+            FilterPanelItemsToHide[0].SetActive(false);
+            FilterPanelItemsToHide[1].SetActive(false);
+            FilterPanelItemsToHide[2].SetActive(false);
+            FilterPanelItemsToHide[4].SetActive(false);
+            FilterPanelItemsToHide[5].SetActive(false);
+
+            RuleSpecButtonManager.inst.AskForAIAdvice();
+        } else {
+            FilterPanelItemsToHide[0].SetActive(false);
+            FilterPanelItemsToHide[1].SetActive(false);
+            FilterPanelItemsToHide[2].SetActive(false);
+            FilterPanelItemsToHide[4].SetActive(false);
+            FilterPanelItemsToHide[5].SetActive(false);
+
+            RuleSpecButtonManager.inst.AskForHumanAdvice();
+        }
+
+        // RuleSpecButtonMgr.inst.DoPacketExamining(RuleSpecButtonMgr.AdvisingState.Me);
+    }
+
+
+    
+    //-----------------------------------------------------------------------------
     
     public List<ParameterHolder> Parameters = new List<ParameterHolder>();
 
@@ -632,16 +702,17 @@ public class NewGameManager : MonoBehaviour
         PacketExamining,
         BeingAdvised,
         Menu,
+        ChooseAdvisorOrMe,
         Paused,
         None
     }
     public Panel PacketExaminerPanel;
-    public Panel StartPanel;
     public Panel WatchingPanel;
     public Panel WaveStartPanel;
     public Panel WaveEndPanel;
     public Panel MenuPanel;
 
+    public Panel ChooseAdvisorOrMePanel;
     public GameState _state;
     public GameState PriorState;
     public GameState State
@@ -651,7 +722,8 @@ public class NewGameManager : MonoBehaviour
         {
             PriorState = _state;
             _state = value;
-
+            
+            ChooseAdvisorOrMePanel.isVisible = (_state == GameState.ChooseAdvisorOrMe);
             WaveStartPanel.isVisible = (_state == GameState.WaveStart);
             WaveEndPanel.isVisible = (_state == GameState.WaveEnd);
 
