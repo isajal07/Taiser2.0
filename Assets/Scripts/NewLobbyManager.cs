@@ -32,7 +32,7 @@ public class NewLobbyManager : MonoBehaviour
         Admin,
         CreateOrJoin,
         MissionObjective,
-        // ChooseDifficulty,
+        ChooseGameMode,
         WaitingForPlayers,
         Play,
         None
@@ -43,7 +43,7 @@ public class NewLobbyManager : MonoBehaviour
     // public Panel CreateOrJoinGamePanel;
     public Panel AdminPanel;
     public Panel MissionObjectivePanel;
-    // public Panel ChooseDifficultyPanel;
+    public Panel ChooseGameModePanel;    
     public Panel WaitingForPlayersPanel;
     public LobbyState _state;
     public LobbyState State
@@ -56,7 +56,7 @@ public class NewLobbyManager : MonoBehaviour
             EnterAliasPanel.isVisible = (_state == LobbyState.EnterAlias);
             AdminPanel.isVisible = (_state == LobbyState.Admin);
             MissionObjectivePanel.isVisible = (_state == LobbyState.MissionObjective);
-            // ChooseDifficultyPanel.isVisible = (_state == LobbyState.ChooseDifficulty);
+            ChooseGameModePanel.isVisible = (_state == LobbyState.ChooseGameMode);
             WaitingForPlayersPanel.isVisible = (_state == LobbyState.WaitingForPlayers);
             // CreateOrJoinGamePanel.isVisible = (_state == LobbyState.CreateOrJoin);
         }
@@ -113,14 +113,32 @@ public class NewLobbyManager : MonoBehaviour
     //-------------------MissionObjectivePanel-------------------------------------
     public void onUnderstoodButton()
     {
-        State = LobbyState.WaitingForPlayers;
-        StartCoroutine("CreateGameAndWaitForPlayers");
+        State = LobbyState.ChooseGameMode;
     }
 
     public void onBackToEnterAliasPanel(){
         State = LobbyState.EnterAlias;
     }
     //---------------------------------------------------------------------
+    //-------------------GameModePanel-------------------------------------
+    public static GameMode gameMode = GameMode.Session;
+    public GameMode publicGameMode;
+    public void OnChoseGameMode(bool isPractice)
+    {
+        if(isPractice)
+            gameMode = GameMode.Practice;
+        else
+            gameMode = GameMode.Session;
+        publicGameMode = gameMode;
+        State = LobbyState.WaitingForPlayers;
+        StartCoroutine("CreateGameAndWaitForPlayers");
+    }
+
+    public void onBackToMissionObjectivePanel(){
+        State = LobbyState.MissionObjective;
+    }
+    //---------------------------------------------------------------------
+
     //-------------------WaitingPlayerPanel--------------------------------
 
     public Text PlayerNameText;
@@ -137,6 +155,8 @@ public class NewLobbyManager : MonoBehaviour
     public System.Random TRandom;
     public GameObject StartButton;
     public Text ReadyMessage;
+    
+
 
     IEnumerator CreateGameAndWaitForPlayers()
     {
@@ -170,14 +190,15 @@ public class NewLobbyManager : MonoBehaviour
     }
     public void onStartButton()
     {
-        // Debug.Log("STARTED!!");
         UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(1);
     }
 
-    public void onBackToMissionObjectivePanel(){
-        State = LobbyState.MissionObjective;
+    public void onBackToGameModePanel(){
+        State = LobbyState.ChooseGameMode;
     }
 
+    
+    //------Admin--------------------------
     public void OnAdminStoreButton()
         {
             AdminManager.inst.WriteParamsToServer();

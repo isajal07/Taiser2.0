@@ -1504,6 +1504,8 @@ MonoBehaviour:
   AIRandomizerSeed: 4321
   HumanRandomizerSeed: 6789
   FilterRuleSpecTitle: {fileID: 1524512749318814617}
+  advisingState: 0
+  AdvisorPacketRuleTextList: []
   FontSizes: 140000001e00000028000000
   TextColors:
   - {r: 0.0627451, g: 1, b: 0.12941177, a: 1}
@@ -1573,19 +1575,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   utils: {fileID: 0}
-  AdvisorAndMeButtons:
-  - {fileID: 4323728798049454317}
-  - {fileID: 4323728798162732163}
-  - {fileID: 4323728798598606625}
-  FilterPanelItemsToHide:
-  - {fileID: 9183802356372646849}
-  - {fileID: 9183802355918515236}
-  - {fileID: 9183802355034608621}
-  - {fileID: 9183802356233454255}
-  - {fileID: 9183802355333108322}
-  - {fileID: 9183802356140993393}
-  - {fileID: 9183802356224625914}
+  LeftButton: {fileID: 4323728798162732163}
+  RightButton: {fileID: 4323728798598606625}
+  MeButton: {fileID: 4323728798049454317}
+  isLeftHuman: 0
+  AdvisorButtonClickTime: 0
   Parameters: []
+  PacketSpeed: 10
+  DefaultPacketSpeed: 10
   RandomSeed: 1234
   maxWaves: 3
   currentWaveNumber: 0
@@ -25090,7 +25087,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &2390453403713155193
 GameObject:
   m_ObjectHideFlags: 0
@@ -26445,10 +26442,10 @@ RectTransform:
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 5, y: 0}
-  m_SizeDelta: {x: 50, y: 0}
-  m_Pivot: {x: 0, y: 0.5}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0.00030517578, y: 0}
+  m_SizeDelta: {x: -4, y: -4}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2390453405159472295
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -26470,13 +26467,13 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: 8d3d0fcd5f67472489c537bcc13b9995, type: 3}
+    m_Font: {fileID: 12800000, guid: 7221c57462bb69b4d866ac9c5e0df875, type: 3}
     m_FontSize: 20
     m_FontStyle: 0
-    m_BestFit: 0
+    m_BestFit: 1
     m_MinSize: 2
     m_MaxSize: 40
-    m_Alignment: 3
+    m_Alignment: 4
     m_AlignByGeometry: 1
     m_RichText: 1
     m_HorizontalOverflow: 0
@@ -29633,7 +29630,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 4323728798049454316}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1084318295}
+        m_TargetAssemblyTypeName: NewGameManager, Assembly-CSharp
+        m_MethodName: OnMeButtonClicked
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!224 &4323728798049454318
 RectTransform:
   m_ObjectHideFlags: 0
@@ -44612,8 +44621,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 9183802355838198863}
   m_HandleRect: {fileID: 9183802355838198856}
   m_Direction: 0
-  m_Value: 1
-  m_Size: 1
+  m_Value: 0
+  m_Size: 0.99999994
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

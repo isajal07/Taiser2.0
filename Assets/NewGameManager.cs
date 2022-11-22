@@ -70,6 +70,12 @@ public enum Difficulty
     Advanced
 }
 
+public enum GameMode
+{
+    Practice = 0,
+    Session
+}
+
 [System.Serializable]
 public class DifficultyParameters
 {
@@ -89,16 +95,15 @@ public enum ParameterNames
     MaxNumberOfPackets,
     MinIntervalBetweenRuleChanges,
     MaxIntervalBetweenRuleChanges,
-    //
     AICorrectProbability,
     HumanCorrectProbability,
     MinHumanAdviceTimeInSeconds,
     MaxHumanAdviceTimeInSeconds,
     MinAIAdviceTimeInSeconds,
     MaxAIAdviceTimeInSeconds,
-    //
     AIRandomSeed,
     HumanRandomSeed,
+    DifficultyRatio,
 }
 
 [System.Serializable]
@@ -140,67 +145,75 @@ public class NewGameManager : MonoBehaviour
 
     //-----------------------------------------------------------------------------
     [Header("Choosing Advisor or Me")]
-    public List<Button> AdvisorAndMeButtons = new List<Button>();
-   
-    public List<GameObject> FilterPanelItemsToHide = new List<GameObject>();
+    public Button LeftButton;
+    public Button RightButton;
+    public Button MeButton;
 
-    public enum AdvisorsAndMe {
-        me = 0,
-        AI,
-        Human,
-    }
-    public void RandomizeAdvisorsOrMeButton(){
-        List<string> buttonStrings = new List<string>( new string[] { "Me", "Choose AI teammate", "Choose Human teammate" });
-        List<string> RandomizedButtons = utils.RandomizeListodButtons(buttonStrings);
-        
-        AdvisorAndMeButtons[0].GetComponentInChildren<Text>().text =  RandomizedButtons[0];
-        AdvisorAndMeButtons[1].GetComponentInChildren<Text>().text =  RandomizedButtons[1];
-        AdvisorAndMeButtons[2].GetComponentInChildren<Text>().text =  RandomizedButtons[2];
-        
-        for( int index = 0; index < RandomizedButtons.Count; index++) {
-            //Clear Delegates
-            AdvisorAndMeButtons[index].onClick.RemoveAllListeners();
-            
-            if (RandomizedButtons[index] == buttonStrings[0]) {
-                 AdvisorAndMeButtons[index].onClick.AddListener(delegate{OnAdvisorOrMeClicked(0);});
-            } else if(RandomizedButtons[index] == buttonStrings[1]) {
-                AdvisorAndMeButtons[index].onClick.AddListener(delegate{OnAdvisorOrMeClicked(1);});
-            } else {
-                AdvisorAndMeButtons[index].onClick.AddListener(delegate{OnAdvisorOrMeClicked(2);});
-            }
+    public bool isLeftHuman;
+
+    public void SetButtonNamesAndState()
+    {
+        isLeftHuman = NewGameManager.inst.Flip(0.5f);
+        LeftButton.GetComponentInChildren<Text>().text = GetButtonName(isLeftHuman);
+        RightButton.GetComponentInChildren<Text>().text = GetButtonName(!isLeftHuman);
+        //Clear Delegates
+        LeftButton.onClick.RemoveAllListeners();
+        RightButton.onClick.RemoveAllListeners();
+        //
+        if(isLeftHuman) {
+            LeftButton.onClick.AddListener(OnHumanButtonClicked);
+            RightButton.onClick.AddListener(OnAIButtonClicked);
+        } else {
+            LeftButton.onClick.AddListener(OnAIButtonClicked);
+            RightButton.onClick.AddListener(OnHumanButtonClicked);
         }
     }
 
-    public void OnAdvisorOrMeClicked(int n)
+    public string GetButtonName(bool isHuman)
+    {
+        if(isHuman) {
+            return "Choose Human Teammate";
+        } else {
+            return "Choose AI Teammate";
+        }
+    }
+
+    public float AdvisorButtonClickTime = 0;
+    
+    public void OnAnyAdvisorButtonClicked()
     {
         State = GameState.PacketExamining;
-        foreach(GameObject item in FilterPanelItemsToHide)
-        {
-             item.SetActive(true);
-        }
-        if (n == (int) AdvisorsAndMe.me)
-        {
-            FilterPanelItemsToHide[3].SetActive(false);
-            FilterPanelItemsToHide[6].SetActive(false);
-        } else if (n == (int) AdvisorsAndMe.AI) {
-            FilterPanelItemsToHide[0].SetActive(false);
-            FilterPanelItemsToHide[1].SetActive(false);
-            FilterPanelItemsToHide[2].SetActive(false);
-            FilterPanelItemsToHide[4].SetActive(false);
-            FilterPanelItemsToHide[5].SetActive(false);
+        AdvisorButtonClickTime = Time.time;
+    }
+    public void OnHumanButtonClicked()
+    {
+        OnAnyAdvisorButtonClicked();
+        RuleSpecButtonManager.inst.DoPacketExamining(RuleSpecButtonManager.AdvisingState.Human);
+    }
 
-            RuleSpecButtonManager.inst.AskForAIAdvice();
-        } else {
-            FilterPanelItemsToHide[0].SetActive(false);
-            FilterPanelItemsToHide[1].SetActive(false);
-            FilterPanelItemsToHide[2].SetActive(false);
-            FilterPanelItemsToHide[4].SetActive(false);
-            FilterPanelItemsToHide[5].SetActive(false);
+    public void OnAIButtonClicked()
+    {
+        OnAnyAdvisorButtonClicked();
+        RuleSpecButtonManager.inst.DoPacketExamining(RuleSpecButtonManager.AdvisingState.AI);
+    }
 
-            RuleSpecButtonManager.inst.AskForHumanAdvice();
-        }
+    public void OnMeButtonClicked()
+    {
+        OnAnyAdvisorButtonClicked();
+        RuleSpecButtonManager.inst.DoPacketExamining(RuleSpecButtonManager.AdvisingState.Me);
+    }
 
-        // RuleSpecButtonMgr.inst.DoPacketExamining(RuleSpecButtonMgr.AdvisingState.Me);
+    /// <summary>
+    /// 1. Set Game state
+    /// 2. Randomly shuffle advisor position buttons
+    /// 3. Set current destination in RuleSpecButtonMgr so we know which destination we are dealing with
+    /// </summary>
+    /// <param name="destination"></param>
+    public void OnAttackableDestinationClicked(Destination destination)
+    {
+        State = GameState.ChooseAdvisorOrMe;
+        SetButtonNamesAndState();
+        RuleSpecButtonManager.inst.CurrentDestination = destination;
     }
 
 
@@ -208,6 +221,8 @@ public class NewGameManager : MonoBehaviour
     //-----------------------------------------------------------------------------
     
     public List<ParameterHolder> Parameters = new List<ParameterHolder>();
+    public float PacketSpeed = 10;
+    public float DefaultPacketSpeed = 10;
 
     public void ReadGameParametersFromServer()
     {
@@ -294,6 +309,13 @@ public class NewGameManager : MonoBehaviour
                 case ParameterNames.HumanRandomSeed:
                     RuleSpecButtonManager.inst.HumanRandomizerSeed = (int) ph.parameterValue;//6789
                     break;
+                case ParameterNames.DifficultyRatio:
+                    Debug.Log("Game Mode: " + NewLobbyManager.gameMode);
+                    if(NewLobbyManager.gameMode == GameMode.Session)
+                        PacketSpeed = DefaultPacketSpeed;
+                    else
+                        PacketSpeed = DefaultPacketSpeed * ph.parameterValue;
+                    break;
 
                 default:
                     Debug.Log("Unknown game parameter name: " + ph.parameterName + ": " + ph.parameterValue);
@@ -379,8 +401,6 @@ public class NewGameManager : MonoBehaviour
 
     public void StartWave()
     {
-        //SetDifficulty(NewLobbyMgr.gameDifficulty);
-
         Debug.Log("Startwave: " + currentWaveNumber);
         InstrumentManager.inst.AddRecord(TaiserEventTypes.StartWave.ToString());
         SetWaveNumberEffect(Color.green);
@@ -757,19 +777,20 @@ public class NewGameManager : MonoBehaviour
         if(packet == null) return; //------------------------------------------
 
         destination.FilterOnRule(packet);
+        float decisionTimeDelta = Time.time - AdvisorButtonClickTime;
 
         if(packet.isEqual(destination.MaliciousRule)) {
             if(isAdvice)
-                InstrumentManager.inst.AddRecord(TaiserEventTypes.AdvisedFirewallCorrectAndSet.ToString());
+                InstrumentManager.inst.AddRecord(TaiserEventTypes.AdvisedFirewallCorrectAndSet.ToString(), decisionTimeDelta.ToString("0.00"));
             else
-                InstrumentManager.inst.AddRecord(TaiserEventTypes.UserBuiltFirewallCorrectAndSet.ToString());
+                InstrumentManager.inst.AddRecord(TaiserEventTypes.UserBuiltFirewallCorrectAndSet.ToString(), decisionTimeDelta.ToString("0.00"));
             EffectsManager.inst.GoodFilterApplied(destination, packet);
             //NewAudioMgr.inst.PlayOneShot(NewAudioMgr.inst.GoodFilterRule);
         } else {
             if(isAdvice)
-                InstrumentManager.inst.AddRecord(TaiserEventTypes.AdvisedFirewallIncorrectAndSet.ToString());
+                InstrumentManager.inst.AddRecord(TaiserEventTypes.AdvisedFirewallIncorrectAndSet.ToString(), decisionTimeDelta.ToString("0.00"));
             else
-                InstrumentManager.inst.AddRecord(TaiserEventTypes.UserBuiltFirewallIncorrectAndSet.ToString());
+                InstrumentManager.inst.AddRecord(TaiserEventTypes.UserBuiltFirewallIncorrectAndSet.ToString(), decisionTimeDelta.ToString("0.00"));
             EffectsManager.inst.BadFilterApplied(destination, packet);
             if(shouldApplyPenalty)
                 ApplyScorePenalty();
@@ -801,9 +822,18 @@ public class NewGameManager : MonoBehaviour
     public void SetSliders()
     {
         WhitehatSlider.value = totalMaliciousFilteredCount;
-        WhitehatCountText.text = totalMaliciousFilteredCount.ToString("00");
+        int score = totalMaliciousFilteredCount - totalMaliciousUnFilteredCount;
+
+        WhitehatCountText.text = score.ToString("0");
+        if (score < 0) {
+            WhitehatCountText.color = Color.red;
+        } else {
+            WhitehatCountText.color = Color.green;
+        }
+        //WhitehatCountText.text = "$" + totalMaliciousFilteredCount.ToString("0");
+
         BlackhatSlider.value = (int) BlackhatScore; // totalMaliciousUnFilteredCount;
-        BlackhatCountText.text = ((int) BlackhatScore).ToString("00");//totalMaliciousUnFilteredCount.ToString("00");
+        //BlackhatCountText.text = "$" + ((int) BlackhatScore).ToString("0");//totalMaliciousUnFilteredCount.ToString("00");
         WaveProgressSlider.value = Sources[0].packetCount / (float) Sources[0].maxPackets;
 
     }
@@ -876,7 +906,7 @@ public class NewGameManager : MonoBehaviour
     //-------------------------------------------------------------------------------------
     public void OnMenuBackButton()
     {
-        State = PriorState;
+        State = GameState.InWave;
     }
 
     public void QuitToWindows()
