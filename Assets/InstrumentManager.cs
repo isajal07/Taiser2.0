@@ -54,7 +54,7 @@ public enum TaiserEventTypes
     MaliciousPacketFiltered_GoodForUs,
     MaliciousPacketUnfiltered_BadForUs,
     AdviseTaken,
-    AdviseFromHumanOrAI,
+    AdviseFromHumanOrAIorMe,
 }
 
 public class InstrumentManager : MonoBehaviour

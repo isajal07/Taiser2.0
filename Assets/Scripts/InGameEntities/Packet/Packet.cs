@@ -62,6 +62,7 @@ public class Packet : MonoBehaviour
 
     public void ReInit(PacketColor color, PacketSize size)
     {
+        speed = NewGameManager.inst.PacketSpeed;
         packet.color = color;
         packet.size = size;
         transform.localPosition = Vector3.zero;
@@ -77,7 +78,7 @@ public class Packet : MonoBehaviour
     public void SetColor(PacketColor col)
     {
         transform.GetComponentInChildren<Renderer>().material.color = NewGameManager.inst.ColorVector[col];
-        transform.GetComponentInChildren<Renderer>().material.SetColor("_EmissiveColor", NewGameManager.inst.ColorVector[col] * 1.5f);
+        // transform.GetComponentInChildren<Renderer>().material.SetColor("_EmissiveColor", NewGameManager.inst.ColorVector[col] * 1.5f);
 
     }
 

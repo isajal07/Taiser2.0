@@ -153,45 +153,83 @@ public class RuleSpecButtonManager : MonoBehaviour
     //-------------------------------------------------------------------------------------
     //--- For when a destination in the examining panel is clicked
 
-    public void OnAttackableDestinationClicked(Destination destination)
-    {
-        NewGameManager.inst.State = GameState.ChooseAdvisorOrMe; //To show panel
-        NewGameManager.inst.RandomizeAdvisorsOrMeButton();
+    // public void OnAttackableDestinationClicked(Destination destination)
+    // {
+    //     NewGameManager.inst.State = GameState.ChooseAdvisorOrMe; //To show panel
+    //     NewGameManager.inst.RandomizeAdvisorsOrMeButton();
         
-        CurrentDestination = destination;
+    //     CurrentDestination = destination;
+    //     CurrentDestination.isBeingExamined = true;
+    //     FilterRuleSpecTitle.text = CurrentDestination.inGameName;
+    //     PacketButtonManager.inst.SetupPacketButtonsForInspection(CurrentDestination); // Setup packet buttons on the top panel
+    //     AcceptAdviceButton.interactable = false;
+    //     State = AdvisingState.Undecided;
+    //     // if(NewLobbyManager.ChooseOnce)
+    //     //     DoChooseOnce();
+    //     // else
+    //     //     DoChooseEveryTime();
+
+    //     ClearPacketInformation(ClickedPacketRuleTextList);
+    //     ClearPacketInformation(AdvisorRuleTextList);
+
+    //     InstrumentManager.inst.AddRecord(TaiserEventTypes.MaliciousDestinationClicked.ToString(), destination.inGameName);
+    // }
+
+        public AdvisingState advisingState = AdvisingState.Undecided;
+        public List<Text> AdvisorPacketRuleTextList = new List<Text>();
+
+        public void DoPacketExamining(AdvisingState AIHumanOrMe) 
+    {
+        advisingState = AIHumanOrMe;
         CurrentDestination.isBeingExamined = true;
         FilterRuleSpecTitle.text = CurrentDestination.inGameName;
         PacketButtonManager.inst.SetupPacketButtonsForInspection(CurrentDestination); // Setup packet buttons on the top panel
         AcceptAdviceButton.interactable = false;
-        State = AdvisingState.Undecided;
-        // if(NewLobbyManager.ChooseOnce)
-        //     DoChooseOnce();
-        // else
-        //     DoChooseEveryTime();
+        //State = AdvisingState.Undecided;
+        switch(advisingState) {
+            case AdvisingState.Me:
+                AskMe();
+                break;
+            case AdvisingState.Human:
+                AskForHumanAdvice();
+                break;
+            case AdvisingState.AI:
+                AskForAIAdvice();
+                break;
+            default:
+                AskForAIAdvice();
+                break;
+        }
 
+        /*
+        if(NewLobbyMgr.ChooseOnce)
+            DoChooseOnce();
+        else
+            DoChooseEveryTime();
+        */
         ClearPacketInformation(ClickedPacketRuleTextList);
-        ClearPacketInformation(AdvisorRuleTextList);
+        ClearPacketInformation(AdvisorPacketRuleTextList);
 
-        InstrumentManager.inst.AddRecord(TaiserEventTypes.MaliciousDestinationClicked.ToString(), destination.inGameName);
+        InstrumentManager.inst.AddRecord(TaiserEventTypes.MaliciousDestinationClicked.ToString(), CurrentDestination.inGameName);
     }
 
     //-------------------------------------------------------------------------------------
-    public void DoChooseOnce()
-    {
-        AdviceSpeciesButtonPanel.gameObject.SetActive(false);
-        if(NewLobbyManager.teammateSpecies == PlayerSpecies.Human)
-            AskForHumanAdvice();
-        else
-            AskForAIAdvice();
+    // public void DoChooseOnce()
+    // {
+    //     AdviceSpeciesButtonPanel.gameObject.SetActive(false);
+    //     if(NewLobbyManager.teammateSpecies == PlayerSpecies.Human)
+    //         AskForHumanAdvice();
+    //     else
+    //         AskForAIAdvice();
             
-    }
+    // }
 
-    public void DoChooseEveryTime()
-    {
-        AdviceSpeciesButtonPanel.gameObject.SetActive(true);
-        State = AdvisingState.Undecided;
+    // public void DoChooseEveryTime()
+    // {
+    //     AdviceSpeciesButtonPanel.gameObject.SetActive(true);
+    //     State = AdvisingState.Undecided;
 
-    }
+    // }
 
     //-------------------------------------------------------------------------------------
     //--- For When a packet button in the examining panel is clicked
@@ -256,7 +294,7 @@ public class RuleSpecButtonManager : MonoBehaviour
             }
          }
         AcceptAdviceButton.interactable = false;
-        AdviceSpeciesButtonPanel.gameObject.SetActive(true);
+        // AdviceSpeciesButtonPanel.gameObject.SetActive(true);
         NewGameManager.inst.ApplyFirewallRule(CurrentDestination, PlayerRuleSpec, false);
 
     }
@@ -267,7 +305,7 @@ public class RuleSpecButtonManager : MonoBehaviour
     public void ApplyClickedPacketRule()
     {
         AcceptAdviceButton.interactable = false;
-        AdviceSpeciesButtonPanel.gameObject.SetActive(true);
+        // AdviceSpeciesButtonPanel.gameObject.SetActive(true);
 
         NewGameManager.inst.ApplyFirewallRule(CurrentDestination, ClickedPacketRuleSpec, false);
 
@@ -280,7 +318,7 @@ public class RuleSpecButtonManager : MonoBehaviour
     public void ApplyAdvice()
     {
         AcceptAdviceButton.interactable = false;
-        AdviceSpeciesButtonPanel.gameObject.SetActive(true);
+        // AdviceSpeciesButtonPanel.gameObject.SetActive(true);
         NewGameManager.inst.ApplyFirewallRule(CurrentDestination, AdvisorRuleSpec, true);
     }
 
@@ -292,25 +330,32 @@ public class RuleSpecButtonManager : MonoBehaviour
     {
         Undecided = 0,
         Human,
-        AI
+        AI,
+        Me,
     }
 
     public AdvisingState State = AdvisingState.Undecided;
     public void AskForHumanAdvice()
     {
         Debug.Log("Picked human");
-        State = AdvisingState.Human;
-        InstrumentManager.inst.AddRecord(TaiserEventTypes.AdviseFromHumanOrAI.ToString(), "Human");
+        // State = AdvisingState.Human;
+        InstrumentManager.inst.AddRecord(TaiserEventTypes.AdviseFromHumanOrAIorMe.ToString(), "Human");
         StartCoroutine(ProvideAdviceWithDelay());
     }
     public void AskForAIAdvice()
     {
         Debug.Log("Picked AI");
-        State = AdvisingState.AI;
+        // State = AdvisingState.AI;
         //Show AI advice after interval
-        InstrumentManager.inst.AddRecord(TaiserEventTypes.AdviseFromHumanOrAI.ToString(), "AI");
+        InstrumentManager.inst.AddRecord(TaiserEventTypes.AdviseFromHumanOrAIorMe.ToString(), "AI");
         StartCoroutine(ProvideAdviceWithDelay());
 
+    }
+
+    
+    public void AskMe()
+    {
+        InstrumentManager.inst.AddRecord(TaiserEventTypes.AdviseFromHumanOrAIorMe.ToString(), "Me");
     }
 
     public float MinHumanTime = 1f;
@@ -332,7 +377,7 @@ public class RuleSpecButtonManager : MonoBehaviour
 
     void PreAdviceUISetup()
     {
-        AdviceSpeciesButtonPanel.gameObject.SetActive(false);
+        // AdviceSpeciesButtonPanel.gameObject.SetActive(false);
         Spinner.gameObject.SetActive(true);
         TeammateNameText.text = "Getting advice";
     }
@@ -341,8 +386,7 @@ public class RuleSpecButtonManager : MonoBehaviour
     {
         AcceptAdviceButton.interactable = true;
         Spinner.gameObject.SetActive(false);
-        //TODO add the name of teamate: ai or human..
-        TeammateNameText.text = "'s advice";
+        TeammateNameText.text = advisingState.ToString();
 
     }
 
