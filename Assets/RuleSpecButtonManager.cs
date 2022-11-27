@@ -22,7 +22,7 @@ public class RuleSpecButtonManager : MonoBehaviour
             HumanDecisionRandomizer = new System.Random(HumanRandomizerSeed);
         }
         ClearPacketInformation(ClickedPacketRuleTextList);
-        ClearPacketInformation(AdvisorRuleTextList);
+        ClearPacketInformation(AdvisorPacketRuleTextList);
     }
 
     // Update is called once per frame
@@ -145,6 +145,7 @@ public class RuleSpecButtonManager : MonoBehaviour
 
     public float RandomRange(System.Random Randomizer, float min, float max)
     {
+        Debug.Log("uououououoouououououououou: " +min +" "+ max);
         return min + (float) Randomizer.NextDouble() * (max - min);
     }
 
@@ -238,8 +239,6 @@ public class RuleSpecButtonManager : MonoBehaviour
     public List<Color> TextColors = new List<Color>();
 
     public List<Text> ClickedPacketRuleTextList = new List<Text>();
-    public List<Text> AdvisorRuleTextList = new List<Text>();
-
     public GameObject PacketRuleTextListRoot;
     public GameObject AdvisorRuleTextListRoot;
     [ContextMenu("SetupRuleTextLists")]
@@ -249,9 +248,9 @@ public class RuleSpecButtonManager : MonoBehaviour
         foreach(Text t in PacketRuleTextListRoot.GetComponentsInChildren<Text>()) {
             ClickedPacketRuleTextList.Add(t);
         }
-        AdvisorRuleTextList.Clear();
+        AdvisorPacketRuleTextList.Clear();
         foreach(Text t in AdvisorRuleTextListRoot.GetComponentsInChildren<Text>()) {
-            AdvisorRuleTextList.Add(t);
+            AdvisorPacketRuleTextList.Add(t);
         }
     }
     public void OnPacketClicked(LightWeightPacket packet)
@@ -400,7 +399,7 @@ public class RuleSpecButtonManager : MonoBehaviour
         } else {
             AdvisorRuleSpec = BlackhatAI.inst.CreateNonMaliciousPacketRuleForDestination(CurrentDestination);
         }
-        DisplayPacketInformation(AdvisorRuleSpec, AdvisorRuleTextList);
+        DisplayPacketInformation(AdvisorRuleSpec, AdvisorPacketRuleTextList);
 
     }
 

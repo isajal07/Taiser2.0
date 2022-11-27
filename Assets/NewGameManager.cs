@@ -132,6 +132,7 @@ public class NewGameManager : MonoBehaviour
     {
         State = GameState.WaveStart;
         HidePrototypes();
+        StartWave();
     }
     public void Initialize()
     {
@@ -139,7 +140,6 @@ public class NewGameManager : MonoBehaviour
         TRandom = new System.Random(RandomSeed);
         utils = new Utils();
         ReadGameParametersFromServer();
-        StartWave();
 
     }
 
@@ -254,6 +254,7 @@ public class NewGameManager : MonoBehaviour
             switch(ph.parameterName) {
                 case ParameterNames.MaxWaves:
                     maxWaves = (int) ph.parameterValue;
+                    MaxWaveText.text = maxWaves.ToString();
                     break;
                 case ParameterNames.Penalty:
                     penalty = (int) ph.parameterValue;
@@ -399,11 +400,17 @@ public class NewGameManager : MonoBehaviour
     public int maxWaves = 3;
     public int currentWaveNumber = 0;
 
+    public Text CurrentWaveText;
+    public Text MaxWaveText;
+
     public void StartWave()
     {
+        State = GameState.WaveStart;
+
         Debug.Log("Startwave: " + currentWaveNumber);
         InstrumentManager.inst.AddRecord(TaiserEventTypes.StartWave.ToString());
-        SetWaveNumberEffect(Color.green);
+        // SetWaveNumberEffect(Color.green);
+        CurrentWaveText.text = (currentWaveNumber + 1).ToString();
         CountdownLabel.text = timerSecs.ToString("0");
         InvokeRepeating("CountdownLabeller", 0.1f, 1.1f);
     }
@@ -515,7 +522,9 @@ public class NewGameManager : MonoBehaviour
         currentWaveNumber += 1;
         if(currentWaveNumber >= maxWaves)
             AnotherWaveAwaitsMessageText.text = "You are done for now. Take a break.";
-        else
+        else if(currentWaveNumber + 1 == maxWaves)
+            AnotherWaveAwaitsMessageText.text = "Get Ready for the final Wave ";
+        else   
             AnotherWaveAwaitsMessageText.text = "Get Ready for Wave " + (1+currentWaveNumber).ToString("0")
                 + " of " + maxWaves.ToString("0");
 
@@ -540,22 +549,22 @@ public class NewGameManager : MonoBehaviour
 
     }
 
-    public List<RectTransform> WaveNumberIndicatorCirclePanels = new List<RectTransform>();
-    public RectTransform WaveNumberIndicatorRoot;
+    // public List<RectTransform> WaveNumberIndicatorCirclePanels = new List<RectTransform>();
+    // public RectTransform WaveNumberIndicatorRoot;
 
-    [ContextMenu("FindWaveNumberIndicators")]
-    public void FindWaveNumberIndicators()
-    {
-        WaveNumberIndicatorCirclePanels.Clear();
-        foreach(RectTransform rt in WaveNumberIndicatorRoot.GetComponentsInChildren<RectTransform>()) {
-            WaveNumberIndicatorCirclePanels.Add(rt);
-        }
-    }
+    // [ContextMenu("FindWaveNumberIndicators")]
+    // public void FindWaveNumberIndicators()
+    // {
+    //     WaveNumberIndicatorCirclePanels.Clear();
+    //     foreach(RectTransform rt in WaveNumberIndicatorRoot.GetComponentsInChildren<RectTransform>()) {
+    //         WaveNumberIndicatorCirclePanels.Add(rt);
+    //     }
+    // }
 
-    public void SetWaveNumberEffect(Color col)
-    {
-        WaveNumberIndicatorCirclePanels[currentWaveNumber].GetComponent<Image>().color = col;
-    }
+    // public void SetWaveNumberEffect(Color col)
+    // {
+    //     WaveNumberIndicatorCirclePanels[currentWaveNumber].GetComponent<Image>().color = col;
+    // }
 
     void WaitToStartNextWave()
     {
