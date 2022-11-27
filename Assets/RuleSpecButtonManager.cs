@@ -210,7 +210,6 @@ public class RuleSpecButtonManager : MonoBehaviour
         ClearPacketInformation(ClickedPacketRuleTextList);
         ClearPacketInformation(AdvisorPacketRuleTextList);
 
-        InstrumentManager.inst.AddRecord(TaiserEventTypes.MaliciousDestinationClicked.ToString(), CurrentDestination.inGameName);
     }
 
     //-------------------------------------------------------------------------------------

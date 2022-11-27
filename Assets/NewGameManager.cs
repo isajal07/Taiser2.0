@@ -214,6 +214,7 @@ public class NewGameManager : MonoBehaviour
         State = GameState.ChooseAdvisorOrMe;
         SetButtonNamesAndState();
         RuleSpecButtonManager.inst.CurrentDestination = destination;
+        InstrumentManager.inst.AddRecord(TaiserEventTypes.MaliciousDestinationClicked.ToString(), RuleSpecButtonManager.inst.CurrentDestination.inGameName);
     }
 
 
