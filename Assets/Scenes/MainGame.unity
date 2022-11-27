@@ -1742,10 +1742,6 @@ MonoBehaviour:
   HumanRandomizerSeed: 6789
   FilterRuleSpecTitle: {fileID: 1524512749318814617}
   advisingState: 0
-  AdvisorPacketRuleTextList:
-  - {fileID: 9183802355904224981}
-  - {fileID: 9183802356598160140}
-  - {fileID: 9183802357122626805}
   FontSizes: 140000001e00000028000000
   TextColors:
   - {r: 0.0627451, g: 1, b: 0.12941177, a: 1}
@@ -1755,6 +1751,10 @@ MonoBehaviour:
   - {fileID: 9183802355904224981}
   - {fileID: 9183802356598160140}
   - {fileID: 9183802357122626805}
+  AdvisorPacketRuleTextList:
+  - {fileID: 9183802355752059144}
+  - {fileID: 9183802356301438815}
+  - {fileID: 9183802354989821836}
   PacketRuleTextListRoot: {fileID: 9183802355771526534}
   AdvisorRuleTextListRoot: {fileID: 9183802355812010152}
   AdviceSpeciesButtonPanel: {fileID: 6507554182439032382}
@@ -29959,7 +29959,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Choose AI TeamMate
+  m_Text: AI
 --- !u!224 &4323728798085112806
 RectTransform:
   m_ObjectHideFlags: 0
@@ -30438,7 +30438,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Choose Human TeamMate
+  m_Text: Human
 --- !u!224 &4323728798655187012
 RectTransform:
   m_ObjectHideFlags: 0
@@ -34048,7 +34048,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!222 &6397771166881483592
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -34123,7 +34123,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &6397771166921464837
 GameObject:
   m_ObjectHideFlags: 0
@@ -34391,7 +34391,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!222 &6397771167241100214
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -35013,7 +35013,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Taiser
+  m_Text: T-2.0
 --- !u!222 &6729004348922557894
 CanvasRenderer:
   m_ObjectHideFlags: 0

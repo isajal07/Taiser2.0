@@ -176,7 +176,6 @@ public class RuleSpecButtonManager : MonoBehaviour
     // }
 
         public AdvisingState advisingState = AdvisingState.Undecided;
-        public List<Text> AdvisorPacketRuleTextList = new List<Text>();
 
         public void DoPacketExamining(AdvisingState AIHumanOrMe) 
     {
@@ -237,6 +236,7 @@ public class RuleSpecButtonManager : MonoBehaviour
     public List<Color> TextColors = new List<Color>();
 
     public List<Text> ClickedPacketRuleTextList = new List<Text>();
+    public List<Text> AdvisorPacketRuleTextList = new List<Text>();
     public GameObject PacketRuleTextListRoot;
     public GameObject AdvisorRuleTextListRoot;
     [ContextMenu("SetupRuleTextLists")]
