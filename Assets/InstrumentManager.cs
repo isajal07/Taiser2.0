@@ -133,7 +133,7 @@ public class InstrumentManager : MonoBehaviour
         form.AddField("file", "file");
         form.AddBinaryData("file", levelData, fileName, "text/csv");
         Debug.Log("Binary data added");
-        WWW w = new WWW("https://www.cse.unr.edu/~sajal/T2/Dataload.php", form);
+        WWW w = new WWW("https://www.cse.unr.edu/~sajal/t2/dataload.php", form);
         yield return w;
 
         if(w.error != null) {

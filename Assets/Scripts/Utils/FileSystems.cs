@@ -49,7 +49,7 @@ public class FileSystems : MonoBehaviour
         form.AddField("file", "file");
         form.AddBinaryData("file", data, filename, "text/csv");
         Debug.Log("Data added");
-        WWW w = new WWW("https://www.cse.unr.edu/~sajal/T2/Dataload.php", form);
+        WWW w = new WWW("https://www.cse.unr.edu/~sajal/t2/Dataload.php", form);
         yield return w;
 
         if(w.error != null) {
@@ -76,7 +76,7 @@ public class FileSystems : MonoBehaviour
 
     IEnumerator ReadFromServer(string filename)
     {
-        UnityWebRequest www = UnityWebRequest.Get("https://www.cse.unr.edu/~sajal/T2/T2Data/" + filename);
+        UnityWebRequest www = UnityWebRequest.Get("https://www.cse.unr.edu/~sajal/t2/t2data/" + filename);
         yield return www.SendWebRequest();
 
         if(www.result != UnityWebRequest.Result.Success) {
