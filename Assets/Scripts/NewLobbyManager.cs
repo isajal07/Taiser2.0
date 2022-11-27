@@ -93,10 +93,10 @@ public class NewLobbyManager : MonoBehaviour
         PlayerName = AliasInputFieldText.text.Trim();
         // Debug.Log(PlayerName);
         // PlayerNameText.text = PlayerName;
-        // PlayerRole = PlayerRoles.Whitehat;
-        // PlrSpecies = PlayerSpecies.Human;
+        PlayerRole = PlayerRoles.Whitehat;
+        PlrSpecies = PlayerSpecies.Human;
 
-        // thisPlayer = new TaiserPlayer(PlayerName, PlayerRole, PlrSpecies);
+        thisPlayer = new TaiserPlayer(PlayerName, PlayerRole, PlrSpecies);
         // // gameDifficulty = Difficulty.Novice;
         teammateSpecies = PlayerSpecies.Human;
         // GameName = PlayerName + "_Taiser";
@@ -190,6 +190,9 @@ public class NewLobbyManager : MonoBehaviour
     }
     public void onStartButton()
     {
+        Debug.Log("Creating Game");
+        State = LobbyState.Play;
+        InstrumentManager.isDebug = false;
         UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(1);
     }
 

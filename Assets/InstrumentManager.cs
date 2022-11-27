@@ -164,7 +164,6 @@ public class InstrumentManager : MonoBehaviour
         session.teammateSpecies = NewLobbyManager.teammateSpecies;
 
 
-
         using(StreamWriter sw = new StreamWriter(File.Open(System.IO.Path.Combine(TaiserFolder, session.name+".csv"), FileMode.Create), Encoding.UTF8)) {
             WriteHeader(sw);
             WriteRecords(sw);

@@ -145,7 +145,6 @@ public class RuleSpecButtonManager : MonoBehaviour
 
     public float RandomRange(System.Random Randomizer, float min, float max)
     {
-        Debug.Log("uououououoouououououououou: " +min +" "+ max);
         return min + (float) Randomizer.NextDouble() * (max - min);
     }
 
