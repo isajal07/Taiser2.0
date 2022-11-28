@@ -834,11 +834,15 @@ public class NewGameManager : MonoBehaviour
         WhitehatSlider.value = totalMaliciousFilteredCount;
         int score = totalMaliciousFilteredCount - totalMaliciousUnFilteredCount;
 
-        WhitehatCountText.text = score.ToString("0");
         if (score < 0) {
             WhitehatCountText.color = Color.red;
-        } else {
+            WhitehatCountText.text = score.ToString("0");
+        } else if (score > 0) {
             WhitehatCountText.color = Color.green;
+            WhitehatCountText.text = "+" + score.ToString("0");
+        } else {
+            WhitehatCountText.color = Color.white;
+            WhitehatCountText.text = score.ToString("0");
         }
         //WhitehatCountText.text = "$" + totalMaliciousFilteredCount.ToString("0");
 
