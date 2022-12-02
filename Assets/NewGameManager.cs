@@ -172,9 +172,9 @@ public class NewGameManager : MonoBehaviour
     public string GetButtonName(bool isHuman)
     {
         if(isHuman) {
-            return "Choose Human Teammate";
+            return "Human";
         } else {
-            return "Choose AI Teammate";
+            return "AI";
         }
     }
 
@@ -197,11 +197,11 @@ public class NewGameManager : MonoBehaviour
         RuleSpecButtonManager.inst.DoPacketExamining(RuleSpecButtonManager.AdvisingState.AI);
     }
 
-    public void OnMeButtonClicked()
-    {
-        OnAnyAdvisorButtonClicked();
-        RuleSpecButtonManager.inst.DoPacketExamining(RuleSpecButtonManager.AdvisingState.Me);
-    }
+    // public void OnMeButtonClicked()
+    // {
+    //     OnAnyAdvisorButtonClicked();
+    //     RuleSpecButtonManager.inst.DoPacketExamining(RuleSpecButtonManager.AdvisingState.Me);
+    // }
 
     /// <summary>
     /// 1. Set Game state
