@@ -17,6 +17,7 @@ public class AdminManager : MonoBehaviour
     }
 
     public List<AdminSliderPanelHandler> AdminSliderPanelHandlers = new List<AdminSliderPanelHandler>();
+    public List<ParameterHolder> defaultParameters = new List<ParameterHolder>();
     public RectTransform SliderRoot;
     [ContextMenu("AssignSliders")]
     public void AssignSliders()
@@ -42,7 +43,10 @@ public class AdminManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        if (Input.GetKeyDown(KeyCode.Alpha5))
+        {
+            WriteDefaultParamsToServer();
+        }
     }
 
     [ContextMenu("WriteParamsToServer")]
@@ -55,6 +59,17 @@ public class AdminManager : MonoBehaviour
                 + aspl.SliderValueText.text);
         }
         FileSystems.inst.WriteFileToServer("Parameters.csv", sb.ToString());
+    }
+
+    public void WriteDefaultParamsToServer() {
+        StringBuilder sb = new StringBuilder();
+        foreach(ParameterHolder aspl in defaultParameters) {
+            sb.AppendLine(((int) aspl.parameterName).ToString() +  ", " 
+                + aspl.parameterName.ToString() + ", " 
+                + aspl.parameterValue);
+        }
+        FileSystems.inst.WriteFileToServer("Parameters.csv", sb.ToString());
+        ReadParamsFromServer();
     }
 
     [ContextMenu("ReadParamsFromServer")]

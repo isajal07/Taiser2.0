@@ -3928,7 +3928,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: AI Random Seed
+  m_Text: AIRandomSeed
 --- !u!222 &177147777
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -4371,7 +4371,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Malicious Packet Probablity
+  m_Text: MaliciousPacketProbability
 --- !u!222 &221497859
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -5809,7 +5809,7 @@ MonoBehaviour:
   VariableNameText: {fileID: 888027782}
   AdminSlider: {fileID: 1498340732}
   SliderValueText: {fileID: 1417109610}
-  ParameterName: 7
+  ParameterName: 8
   isInt: 0
   Value: 0
 --- !u!114 &275957841
@@ -9583,7 +9583,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Human Random Seed
+  m_Text: HumanRandomSeed
 --- !u!222 &573349577
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -9662,7 +9662,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Min AI advice time in secs
+  m_Text: MinAIAdviceTimeInSeconds
 --- !u!222 &576746139
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -11198,7 +11198,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Max Waves
+  m_Text: MaxWaves
 --- !u!222 &678895871
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -12361,7 +12361,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Max Number Of Packets
+  m_Text: MaxNumberOfPackets
 --- !u!222 &771634092
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -13364,7 +13364,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Max human advice time in secs
+  m_Text: MaxHumanAdviceTimeInSeconds
 --- !u!222 &877747493
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -13741,7 +13741,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: AI correct probability
+  m_Text: HumanCorrectProbability
 --- !u!222 &888027783
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -16475,7 +16475,7 @@ MonoBehaviour:
   VariableNameText: {fileID: 877747492}
   AdminSlider: {fileID: 1111371225}
   SliderValueText: {fileID: 1601324210}
-  ParameterName: 6
+  ParameterName: 10
   isInt: 0
   Value: 0
 --- !u!114 &1079370543
@@ -16688,7 +16688,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 
+  m_Text: MaxIntervalBetweenRuleChanges
 --- !u!222 &1091772866
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -23060,6 +23060,40 @@ MonoBehaviour:
   - {fileID: 1005529190}
   - {fileID: 157207227}
   - {fileID: 437113245}
+  - {fileID: 2120944831826812282}
+  defaultParameters:
+  - parameterName: 0
+    parameterValue: 3
+  - parameterName: 1
+    parameterValue: 3
+  - parameterName: 2
+    parameterValue: 0.25
+  - parameterName: 3
+    parameterValue: 0.5
+  - parameterName: 4
+    parameterValue: 188
+  - parameterName: 5
+    parameterValue: 40
+  - parameterName: 6
+    parameterValue: 60
+  - parameterName: 7
+    parameterValue: 0.8
+  - parameterName: 8
+    parameterValue: 0.8
+  - parameterName: 9
+    parameterValue: 3
+  - parameterName: 10
+    parameterValue: 3
+  - parameterName: 11
+    parameterValue: 3
+  - parameterName: 12
+    parameterValue: 3
+  - parameterName: 13
+    parameterValue: 4583
+  - parameterName: 14
+    parameterValue: 66305
+  - parameterName: 15
+    parameterValue: 0.8
   SliderRoot: {fileID: 3758642883548996080}
 --- !u!1 &1509168054
 GameObject:
@@ -25524,7 +25558,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 
+  m_Text: MinIntervalBetweenRuleChanges
 --- !u!222 &1652502837
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -30371,7 +30405,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Max AI advice time in secs
+  m_Text: MaxAIAdviceTimeInSeconds
 --- !u!222 &2032646514
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -30669,7 +30703,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Min human advice time in secs
+  m_Text: MinHumanAdviceTimeInSeconds
 --- !u!222 &2057671777
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -31694,7 +31728,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Interval Between Packets
+  m_Text: IntervalBetweenPackets
 --- !u!222 &2131059960
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -35067,7 +35101,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Difficulty Ratio
+  m_Text: DifficultyRatio
 --- !u!224 &2120944831698431947
 RectTransform:
   m_ObjectHideFlags: 0
@@ -37482,7 +37516,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Human correct probability
+  m_Text: AICorrectProbability
 --- !u!224 &3980146439679030367
 RectTransform:
   m_ObjectHideFlags: 0
@@ -37615,7 +37649,7 @@ MonoBehaviour:
   VariableNameText: {fileID: 3980146439679030366}
   AdminSlider: {fileID: 6706072629120513442}
   SliderValueText: {fileID: 6706072629049975293}
-  ParameterName: 8
+  ParameterName: 7
   isInt: 0
   Value: 0
 --- !u!222 &3980146439823263471
