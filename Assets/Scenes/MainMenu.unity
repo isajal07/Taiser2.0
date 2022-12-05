@@ -40054,7 +40054,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1.2
-  m_Text: Choose Practice or Session
+  m_Text: Choose Game mode
 --- !u!224 &4905551662517187447
 RectTransform:
   m_ObjectHideFlags: 0

@@ -42,7 +42,6 @@ public enum TaiserEventTypes
     RuleSpec = 0, //which button?
     Filter,       //which rule?
     MaliciousDestinationClicked,  //which building?
-    Menu,
     UserBuiltFirewallCorrectAndSet,
     UserBuiltFirewallIncorrectAndSet,
     PacketInspect,      //Packet info
@@ -55,6 +54,11 @@ public enum TaiserEventTypes
     MaliciousPacketUnfiltered_BadForUs,
     AdviseTaken,
     AdviseFromHumanOrAIorMe,
+    SetFireWallMethod,
+    RuleSet,
+    AdviceAccepted,
+    BackButtonClicked,
+    
 }
 
 public class InstrumentManager : MonoBehaviour
@@ -182,7 +186,7 @@ public class InstrumentManager : MonoBehaviour
     {
         string header = "";
         header += session.name + ", " + session.role + ", "  +  session.dayAndTime + eoln;
-        header += "Teammate Species: ," + session.teammateSpecies + eoln;
+        header += "Game Mode: ," + NewLobbyManager.gameMode + eoln;
         //header += "Game Difficulty: ," + session.gameDifficulty + eoln;
         header += "Whitehat Score, " + session.whitehatScore.ToString("00.0") +
             ", Blackhat Score, " + session.blackhatScore.ToString("00.0") + eoln;

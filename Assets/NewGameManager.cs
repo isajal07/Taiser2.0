@@ -575,6 +575,7 @@ public class NewGameManager : MonoBehaviour
         if(currentWaveNumber < maxWaves) {
             StartWave();//Startwave unpauses destination clocks
         } else {
+            //TODO: add spiner to disable the menu buttons to save the game
             InstrumentManager.inst.WriteSession();
             State = GameState.Menu;
             ResetGame();
@@ -935,7 +936,7 @@ public class NewGameManager : MonoBehaviour
 
     public void OnMenuButtonClicked()
     {
-        InstrumentManager.inst.AddRecord(TaiserEventTypes.Menu.ToString());
+        InstrumentManager.inst.AddRecord(TaiserEventTypes.BackButtonClicked.ToString());
         State = GameState.Menu;
     }
 

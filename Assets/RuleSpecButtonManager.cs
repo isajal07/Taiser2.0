@@ -292,8 +292,8 @@ public class RuleSpecButtonManager : MonoBehaviour
          }
         AcceptAdviceButton.interactable = false;
         // AdviceSpeciesButtonPanel.gameObject.SetActive(true);
+        InstrumentManager.inst.AddRecord(TaiserEventTypes.SetFireWallMethod.ToString(), TaiserEventTypes.RuleSet.ToString());
         NewGameManager.inst.ApplyFirewallRule(CurrentDestination, PlayerRuleSpec, false);
-
     }
 
     /// <summary>
@@ -303,7 +303,6 @@ public class RuleSpecButtonManager : MonoBehaviour
     {
         AcceptAdviceButton.interactable = false;
         // AdviceSpeciesButtonPanel.gameObject.SetActive(true);
-
         NewGameManager.inst.ApplyFirewallRule(CurrentDestination, ClickedPacketRuleSpec, false);
 
     }
@@ -316,6 +315,7 @@ public class RuleSpecButtonManager : MonoBehaviour
     {
         AcceptAdviceButton.interactable = false;
         // AdviceSpeciesButtonPanel.gameObject.SetActive(true);
+        InstrumentManager.inst.AddRecord(TaiserEventTypes.SetFireWallMethod.ToString(), TaiserEventTypes.AdviceAccepted.ToString());
         NewGameManager.inst.ApplyFirewallRule(CurrentDestination, AdvisorRuleSpec, true);
     }
 
