@@ -576,8 +576,10 @@ public class NewGameManager : MonoBehaviour
             StartWave();//Startwave unpauses destination clocks
         } else {
             //TODO: add spiner to disable the menu buttons to save the game
+           
             InstrumentManager.inst.WriteSession();
             State = GameState.Menu;
+            StartCoroutine("DisplaySavingDataMessage");
             ResetGame();
         }
     }
@@ -591,6 +593,18 @@ public class NewGameManager : MonoBehaviour
             source.Reset();
         }
         penaltyCount = 0;
+    }
+
+    public GameObject SavingDataMessage;
+    public GameObject MenuButtons;
+
+    IEnumerator DisplaySavingDataMessage() {
+        SavingDataMessage.SetActive(true);
+        MenuButtons.SetActive(false);
+
+        yield return new WaitForSeconds(5);
+        SavingDataMessage.SetActive(false);
+        MenuButtons.SetActive(true);
     }
 
     
