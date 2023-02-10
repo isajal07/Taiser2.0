@@ -8,7 +8,7 @@ public class BlackhatAI : MonoBehaviour
     {
         inst = this;
     }
-    // Start is called before the first frame updates
+    // Start is called before the first frame update
     void Start()
     {
         
