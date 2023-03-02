@@ -3,10 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Threading.Tasks;
+using UnityEngine.Networking;
+using System;
+
+// using System.Text.Json;
 public class NewLobbyManager : MonoBehaviour
 {
     public static NewLobbyManager inst;
     public Utils utils;
+    public JsonHelper JsonHelper;
     // Start is called before the first frame update
     public void Awake()
     {
@@ -18,6 +23,7 @@ public class NewLobbyManager : MonoBehaviour
     {
         State = LobbyState.StartOrQuit;
         TRandom = new System.Random();
+
     }
 
     // Update is called once per frame

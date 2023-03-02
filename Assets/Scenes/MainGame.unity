@@ -968,28 +968,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0412af5d97b9937489c1d69751d48992, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  testEvent: 5
+  eventLatencyIntervals:
+  - startEventType: 2
+    endEventTypes: 0e000000
+    startEventTime: 0
+    endEventTime: 0
+  - startEventType: 14
+    endEventTypes: 04000000050000000a0000000b00000010000000
+    startEventTime: 0
+    endEventTime: 0
+  - startEventType: 15
+    endEventTypes: 04000000050000000a0000000b00000010000000
+    startEventTime: 0
+    endEventTime: 0
+  - startEventType: 0
+    endEventTypes: 0f000000
+    startEventTime: 0
+    endEventTime: 0
   TaiserFolder: 
   session:
-    name: Sajal
+    name: T2
     role: 0
     teammateSpecies: 0
     dayAndTime: 
     gameDifficulty: 0
     whitehatScore: 0
     blackhatScore: 0
-    records:
-    - secondsFromStart: 0
-      eventName: StartWave
-      eventModifiers:
-      - 
-    - secondsFromStart: 5.10059
-      eventName: SetNewMaliciousRule
-      eventModifiers:
-      - NorthEast
-    - secondsFromStart: 5.10059
-      eventName: SetNewMaliciousRule
-      eventModifiers:
-      - SouthWest
+    records: []
 --- !u!1 &486375472
 GameObject:
   m_ObjectHideFlags: 0
@@ -2072,6 +2078,8 @@ MonoBehaviour:
   MinAITime: 1
   MaxAITime: 1
   Spinner: {fileID: 3502335893928470464}
+  isFirstHumanAdvice: 1
+  isFirstAIAdvice: 1
 --- !u!1 &1084318293
 GameObject:
   m_ObjectHideFlags: 0

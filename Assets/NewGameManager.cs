@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Networking;
+
 //-------------------------------------------------------------------------------------------
 [System.Serializable]
 public class LightWeightPacket
@@ -85,10 +87,21 @@ public class DifficultyParameters
     public int timeSpread;
 }
 
+ [System.Serializable]
+    public class AccuraciesHolder {
+        // public int wave;
+        // public float AICorrectProbability;
+        // public float humanCorrectProbability; 
+        // public string _id;
+         public int accuracyName;
+        public float accuracyValue = -1;
+    }
 
 public enum ParameterNames
 {
     MaxWaves = 0,
+
+    // public Accuracies accuracies, 
     Penalty,
     MaliciousPacketProbability,
     IntervalBetweenPackets,
@@ -112,7 +125,6 @@ public class ParameterHolder
     public ParameterNames parameterName;
     public float parameterValue = -1;
 }
-
 //-------------------------------------------------------------------------------------------
 public class NewGameManager : MonoBehaviour
 {
@@ -133,6 +145,7 @@ public class NewGameManager : MonoBehaviour
         State = GameState.WaveStart;
         HidePrototypes();
         StartWave();
+        StartCoroutine(FetchParameters());
     }
     public void Initialize()
     {
@@ -140,7 +153,7 @@ public class NewGameManager : MonoBehaviour
         TRandom = new System.Random(RandomSeed);
         utils = new Utils();
         ReadGameParametersFromServer();
-
+        
     }
 
     //-----------------------------------------------------------------------------
@@ -211,10 +224,11 @@ public class NewGameManager : MonoBehaviour
     /// <param name="destination"></param>
     public void OnAttackableDestinationClicked(Destination destination)
     {
+        InstrumentManager.inst.AddRecord2(TaiserEventTypes.MaliciousDestinationClicked, destination.inGameName);
+        // InstrumentManager.inst.AddRecord3(TaiserEventTypes.MaliciousDestinationClicked, destination.inGameName,"","","");
         State = GameState.ChooseAdvisorOrMe;
         SetButtonNamesAndState();
         RuleSpecButtonManager.inst.CurrentDestination = destination;
-        InstrumentManager.inst.AddRecord(TaiserEventTypes.MaliciousDestinationClicked.ToString(), RuleSpecButtonManager.inst.CurrentDestination.inGameName);
     }
 
 
@@ -240,18 +254,19 @@ public class NewGameManager : MonoBehaviour
             while((line = sr.ReadLine()) != null) {
                 string[] cells = line.Split(',');
                 ParameterHolder ph = new ParameterHolder();
-                ph.parameterName = (ParameterNames) int.Parse(cells[0].Trim());
+                ph.parameterName =  (ParameterNames) int.Parse(cells[0].Trim());
                 ph.parameterValue = float.Parse(cells[2].Trim());
                 Parameters.Add(ph);
             }
         }
-        if(Parameters.Count > 0) 
-            SetGameParameters();
+        // if(Parameters.Count > 0) 
+        //     SetGameParameters();
     }
-    
+
     public void SetGameParameters()
     {
-        foreach(ParameterHolder ph in Parameters) {
+        foreach(ParameterHolder ph in SettingsHolders) {
+            Debug.Log("parameterName: "+ ph.parameterName + "parametervalue: "+ ph.parameterValue);
             switch(ph.parameterName) {
                 case ParameterNames.MaxWaves:
                     maxWaves = (int) ph.parameterValue;
@@ -286,12 +301,14 @@ public class NewGameManager : MonoBehaviour
                     }
                     break;
                 //----------------------------------------------------
+                // TODO: Set AICorrectAdviceProbability and HumanCorrectAdviceProbability with respect to wave
                 case ParameterNames.AICorrectProbability:
                     RuleSpecButtonManager.inst.AICorrectAdviceProbability = ph.parameterValue;
                     break;
                 case ParameterNames.HumanCorrectProbability:
                     RuleSpecButtonManager.inst.HumanCorrectAdviceProbability = ph.parameterValue;
                     break;
+                //----------------------------------------------------------------
                 case ParameterNames.MinHumanAdviceTimeInSeconds:
                     RuleSpecButtonManager.inst.MinHumanTime = ph.parameterValue;
                     break;
@@ -319,6 +336,23 @@ public class NewGameManager : MonoBehaviour
                         PacketSpeed = DefaultPacketSpeed * ph.parameterValue;
                     break;
 
+                default:
+                    Debug.Log("Unknown game parameter name: " + ph.parameterName + ": " + ph.parameterValue);
+                    break;
+            }
+        }
+    }
+
+    public void setHumanAICorrectAdviceProbablities() {
+        foreach(ParameterHolder ph in SettingsHolders) {
+            Debug.Log("$$parameterName: "+ ph.parameterName + "$$parametervalue: "+ ph.parameterValue);
+            switch(ph.parameterName) {
+                case ParameterNames.AICorrectProbability:
+                    RuleSpecButtonManager.inst.AICorrectAdviceProbability = ph.parameterValue;
+                    break;
+                case ParameterNames.HumanCorrectProbability:
+                    RuleSpecButtonManager.inst.HumanCorrectAdviceProbability = ph.parameterValue;
+                    break;
                 default:
                     Debug.Log("Unknown game parameter name: " + ph.parameterName + ": " + ph.parameterValue);
                     break;
@@ -407,8 +441,9 @@ public class NewGameManager : MonoBehaviour
     public void StartWave()
     {
         State = GameState.WaveStart;
-
+        // Debug.Log("<><><><><><><><> " + maxWaves);
         Debug.Log("Startwave: " + currentWaveNumber);
+        
         InstrumentManager.inst.AddRecord(TaiserEventTypes.StartWave.ToString());
         // SetWaveNumberEffect(Color.green);
         CurrentWaveText.text = (currentWaveNumber + 1).ToString();
@@ -578,6 +613,7 @@ public class NewGameManager : MonoBehaviour
             //TODO: add spiner to disable the menu buttons to save the game
            
             InstrumentManager.inst.WriteSession();
+            // InstrumentManager.inst.WriteUserGameDataSession();
             State = GameState.Menu;
             StartCoroutine("DisplaySavingDataMessage");
             ResetGame();
@@ -797,25 +833,30 @@ public class NewGameManager : MonoBehaviour
 
     
 
-    public void ApplyFirewallRule(Destination destination, LightWeightPacket packet, bool isAdvice)
+   public void ApplyFirewallRule(Destination destination, LightWeightPacket packet, bool isAdvice)
     {
         if(packet == null) return; //------------------------------------------
 
         destination.FilterOnRule(packet);
-        float decisionTimeDelta = Time.time - AdvisorButtonClickTime;
 
         if(packet.isEqual(destination.MaliciousRule)) {
             if(isAdvice)
-                InstrumentManager.inst.AddRecord(TaiserEventTypes.AdvisedFirewallCorrectAndSet.ToString(), decisionTimeDelta.ToString("0.00"));
-            else
-                InstrumentManager.inst.AddRecord(TaiserEventTypes.UserBuiltFirewallCorrectAndSet.ToString(), decisionTimeDelta.ToString("0.00"));
+            {
+                InstrumentManager.inst.AddRecord2(TaiserEventTypes.AdvisedFirewallCorrectAndSet);
+                // InstrumentManager.inst.AddRecord3(TaiserEventTypes.AdvisedFirewallCorrectAndSet, "","","","");
+             } else {
+                InstrumentManager.inst.AddRecord2(TaiserEventTypes.UserBuiltFirewallCorrectAndSet);
+                // InstrumentManager.inst.AddRecord3(TaiserEventTypes.UserBuiltFirewallCorrectAndSet, "","","","");            
+            }//NewAudioMgr.inst.PlayOneShot(NewAudioMgr.inst.GoodFilterRule);
             EffectsManager.inst.GoodFilterApplied(destination, packet);
-            //NewAudioMgr.inst.PlayOneShot(NewAudioMgr.inst.GoodFilterRule);
         } else {
             if(isAdvice)
-                InstrumentManager.inst.AddRecord(TaiserEventTypes.AdvisedFirewallIncorrectAndSet.ToString(), decisionTimeDelta.ToString("0.00"));
-            else
-                InstrumentManager.inst.AddRecord(TaiserEventTypes.UserBuiltFirewallIncorrectAndSet.ToString(), decisionTimeDelta.ToString("0.00"));
+             {   InstrumentManager.inst.AddRecord2(TaiserEventTypes.AdvisedFirewallIncorrectAndSet);
+                // InstrumentManager.inst.AddRecord3(TaiserEventTypes.AdvisedFirewallIncorrectAndSet,  "","","","");
+             }else{
+                InstrumentManager.inst.AddRecord2(TaiserEventTypes.UserBuiltFirewallIncorrectAndSet);
+                // InstrumentManager.inst.AddRecord3(TaiserEventTypes.UserBuiltFirewallIncorrectAndSet, "","","","");
+             }
             EffectsManager.inst.BadFilterApplied(destination, packet);
             if(shouldApplyPenalty)
                 ApplyScorePenalty();
@@ -935,6 +976,7 @@ public class NewGameManager : MonoBehaviour
     //-------------------------------------------------------------------------------------
     public void OnMenuBackButton()
     {
+        InstrumentManager.inst.AddRecord2(TaiserEventTypes.BackButtonNoFirewallSet);
         State = GameState.InWave;
     }
 
@@ -950,7 +992,7 @@ public class NewGameManager : MonoBehaviour
 
     public void OnMenuButtonClicked()
     {
-        InstrumentManager.inst.AddRecord(TaiserEventTypes.BackButtonClicked.ToString());
+        InstrumentManager.inst.AddRecord(TaiserEventTypes.Menu.ToString());
         State = GameState.Menu;
     }
 
@@ -972,4 +1014,174 @@ public class NewGameManager : MonoBehaviour
     //----------------------------------------------------------------------------------------------------
     //----------------------------------------------------------------------------------------------------
 
+ [System.Serializable]
+    public class Accuracies {
+        public int wave;
+        public float AICorrectProbability;
+        public float humanCorrectProbability; 
+        public string _id;
+    }
+     [System.Serializable]
+    public class GameModeParameters {
+        public int maxWaves;
+        public List<Accuracies> accuracies;
+        public int penalty;
+        public float maliciousPacketProbability;
+        public float intervalBetweenPackets;
+        public float maxNumberOfPackets;
+        public float minIntervalBetweenRuleChanges;
+        public float maxIntervalBetweenRuleChanges;
+        public float minHumanAdviceTimeInSeconds;
+        public float maxHumanAdviceTimeInSeconds;
+        public float minAIAdviceTimeInSeconds;
+        public float maxAIAdviceTimeInSeconds;
+        public float AIRandomSeed;
+        public float humanRandomSeed;
+        public float difficultyRatio;
+        public string _id;
+    }
+    [System.Serializable]
+    public class ParameterInfo {
+        public string _id;
+        public string name;
+        public string note;
+        public bool isSelected;
+        public GameModeParameters training;
+        public GameModeParameters session;
+        public string createdAt;
+        public string updatedAt;
+        public double __v;
+        public GameModeParameters this[string index] {
+            get {
+                switch (index) {
+                    case "training":
+                        return training;
+                    case "session":
+                        return session;
+                    default:
+                        throw new ArgumentOutOfRangeException("index");
+                }
+            }
+        }
+    }
+
+    public List<ParameterHolder> SettingsHolders = new List<ParameterHolder>();
+    public IEnumerator FetchParameters() {
+        using (UnityWebRequest req = UnityWebRequest.Get(String.Format("http://localhost:5001/api/getSelectedSettings")))
+        {
+            yield return req.Send();
+            while(!req.isDone)
+                yield return null;
+            byte[] result = req.downloadHandler.data;
+            string jsonData = System.Text.Encoding.UTF8.GetString(result);
+            ParameterInfo info = JsonUtility.FromJson<ParameterInfo>(jsonData);
+            extractSettings(info);
+        }
+    }
+
+
+
+    public void extractSettings(ParameterInfo settings) {
+
+            string gameMode; 
+            if(NewLobbyManager.gameMode == GameMode.Session) {
+                gameMode = "session";
+            } else {
+                gameMode = "training";
+            }
+
+            ParameterHolder ph = new ParameterHolder();
+            
+            ph.parameterName = ParameterNames.MaxWaves;
+            ph.parameterValue = settings[gameMode].maxWaves;
+            SettingsHolders.Add(ph);
+
+            ParameterHolder ph1 = new ParameterHolder();
+            ph1.parameterName = ParameterNames.Penalty;
+            ph1.parameterValue = settings[gameMode].penalty;
+            SettingsHolders.Add(ph1);
+
+            ParameterHolder ph2 = new ParameterHolder();
+            ph2.parameterName = ParameterNames.MaliciousPacketProbability;
+            ph2.parameterValue = settings[gameMode].maliciousPacketProbability;
+            SettingsHolders.Add(ph2);
+
+            ParameterHolder ph3 = new ParameterHolder();
+            ph3.parameterName = ParameterNames.IntervalBetweenPackets;
+            ph3.parameterValue = settings[gameMode].intervalBetweenPackets;
+            SettingsHolders.Add(ph3);
+
+            ParameterHolder ph4 = new ParameterHolder();
+            ph4.parameterName = ParameterNames.MaxNumberOfPackets;
+            ph4.parameterValue = settings[gameMode].maxNumberOfPackets;
+            SettingsHolders.Add(ph4);
+            
+            ParameterHolder ph5 = new ParameterHolder();
+            ph5.parameterName = ParameterNames.MinIntervalBetweenRuleChanges;
+            ph5.parameterValue = settings[gameMode].minIntervalBetweenRuleChanges;
+            SettingsHolders.Add(ph5);
+            
+            ParameterHolder ph6 = new ParameterHolder();
+            ph6.parameterName = ParameterNames.MaxIntervalBetweenRuleChanges;
+            ph6.parameterValue = settings[gameMode].maxIntervalBetweenRuleChanges;
+            SettingsHolders.Add(ph6);
+            
+            ParameterHolder ph7 = new ParameterHolder();
+            ph7.parameterName = ParameterNames.MinHumanAdviceTimeInSeconds;
+            ph7.parameterValue = settings[gameMode].minHumanAdviceTimeInSeconds;
+            SettingsHolders.Add(ph7);
+
+            ParameterHolder ph8 = new ParameterHolder();
+            ph8.parameterName = ParameterNames.MaxHumanAdviceTimeInSeconds;
+            ph8.parameterValue = settings[gameMode].maxHumanAdviceTimeInSeconds;
+            SettingsHolders.Add(ph8);
+
+            ParameterHolder ph9 = new ParameterHolder();
+            ph9.parameterName = ParameterNames.MinAIAdviceTimeInSeconds;
+            ph9.parameterValue = settings[gameMode].minAIAdviceTimeInSeconds;
+            SettingsHolders.Add(ph9);
+            
+            ParameterHolder ph10 = new ParameterHolder();
+            ph10.parameterName = ParameterNames.MaxAIAdviceTimeInSeconds;
+            ph10.parameterValue = settings[gameMode].maxAIAdviceTimeInSeconds;
+            SettingsHolders.Add(ph10);
+
+            ParameterHolder ph11 = new ParameterHolder();
+            ph11.parameterName = ParameterNames.AIRandomSeed;
+            ph11.parameterValue = settings[gameMode].AIRandomSeed;
+            SettingsHolders.Add(ph11);
+
+            ParameterHolder ph12 = new ParameterHolder();
+            ph12.parameterName = ParameterNames.HumanRandomSeed;
+            ph12.parameterValue = settings[gameMode].humanRandomSeed;
+            SettingsHolders.Add(ph12);
+
+            ParameterHolder ph13 = new ParameterHolder();
+            ph13.parameterName = ParameterNames.DifficultyRatio;
+            ph13.parameterValue = settings[gameMode].difficultyRatio;
+            SettingsHolders.Add(ph13);
+
+            // AICorrectProbability, HumanCorrectProbability,
+            ParameterHolder ph14 = new ParameterHolder();
+            ph14.parameterName = ParameterNames.AICorrectProbability;
+            ph14.parameterValue = settings[gameMode].accuracies[0].AICorrectProbability;
+            SettingsHolders.Add(ph14);
+
+            ParameterHolder ph15 = new ParameterHolder();
+            ph15.parameterName = ParameterNames.HumanCorrectProbability;
+            ph15.parameterValue = settings[gameMode].accuracies[0].humanCorrectProbability;
+            SettingsHolders.Add(ph15);
+
+            
+            // ParameterHolder ph16 = new ParameterHolder();
+
+            // foreach(Accuracies acc in settings[gameMode].accuracies)
+            // {
+            //     ph16.accuracies.Add(new AccuraciesHolder {accuracyName =  ParameterNames.AICorrectProbability, accuracyValue = acc.AICorrectProbability});
+            // }
+            // SettingsHolders.Add(ph16);
+            
+            SetGameParameters();
+            // setHumanAICorrectAdviceProbablities();
+    }
 }

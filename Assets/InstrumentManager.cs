@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,7 +6,8 @@ using UnityEngine;
 using System.IO;
 using System.Text;
 using System.Xml;
-
+using UnityEngine.Networking;
+using UnityEngine.UI;
 //----------------------------------------------------
 //Could use csv helper, but seems too much for our 
 //simple needs and adds unneeded dependency
@@ -37,11 +39,21 @@ public class TaiserRecord
 }
 
 [System.Serializable]
+public class EventLatencyTracker
+{
+    public TaiserEventTypes startEventType;
+    public List<TaiserEventTypes> endEventTypes;
+    public float startEventTime;
+    public float endEventTime;
+} 
+
+[System.Serializable]
 public enum TaiserEventTypes
 {
     RuleSpec = 0, //which button?
     Filter,       //which rule?
     MaliciousDestinationClicked,  //which building?
+    Menu,
     UserBuiltFirewallCorrectAndSet,
     UserBuiltFirewallIncorrectAndSet,
     PacketInspect,      //Packet info
@@ -52,12 +64,9 @@ public enum TaiserEventTypes
     AdvisedFirewallIncorrectAndSet,
     MaliciousPacketFiltered_GoodForUs,
     MaliciousPacketUnfiltered_BadForUs,
-    AdviseTaken,
-    AdviseFromHumanOrAIorMe,
-    SetFireWallMethod,
-    RuleSet,
-    AdviceAccepted,
-    BackButtonClicked,
+    PickedAdvisorType,
+    AdviceAppeared,
+    BackButtonNoFirewallSet
     
 }
 
@@ -83,6 +92,11 @@ public class InstrumentManager : MonoBehaviour
         }
     }
 
+     public TaiserEventTypes testEvent = TaiserEventTypes.MaliciousDestinationClicked;
+
+    public List<EventLatencyTracker> eventLatencyIntervals = new List<EventLatencyTracker>();
+
+
     public string TaiserFolder;
 
     public void CreateOrFindTaiserFolder()
@@ -100,14 +114,6 @@ public class InstrumentManager : MonoBehaviour
     //public List<TaiserRecord> records = new List<TaiserRecord>();
     public TaiserSession session = new TaiserSession();
 
-    public void AddRecord(string eventName, List<string> modifiers)
-    {
-        TaiserRecord record = new TaiserRecord();
-        record.eventName = eventName;
-        record.eventModifiers = modifiers;
-        record.secondsFromStart = Time.time;// Time.realtimeSinceStartup;
-        session.records.Add(record);
-    }
 
     public void AddRecord(string eventName, string modifier = "")
     {
@@ -119,6 +125,51 @@ public class InstrumentManager : MonoBehaviour
         record.secondsFromStart = Time.time; // Time.realtimeSinceStartup;
         session.records.Add(record);
     }
+
+     [ContextMenu("TestAddRecord")]
+    public void TestAddRecord()
+    {
+        AddRecord(testEvent);
+    }
+
+      public void AddRecord(TaiserEventTypes tEventType, string modifier = "")
+    {
+        EventLatencyTracker elt = eventLatencyIntervals.Find(x => x.startEventType == tEventType);
+        if(elt != null) {
+            elt.startEventTime = Time.time;
+            AddRecord(tEventType.ToString(), modifier);//this will be added multiple times, once for each latency tracked
+        } 
+
+        EventLatencyTracker elt2 = eventLatencyIntervals.Find(x => x.endEventTypes.Contains(tEventType));
+        if( elt2 != null) {
+            elt2.endEventTime = Time.time;
+            float delta = elt2.endEventTime - elt2.startEventTime;
+            AddRecord(tEventType.ToString(), modifier + ", " + delta.ToString("0.00"));
+        }
+
+        if(elt == null && elt2 == null) {
+            AddRecord(tEventType.ToString(), modifier);
+        }
+    }
+
+    public void AddRecord2(TaiserEventTypes tEventType, string modifier = "")
+    {
+        List<EventLatencyTracker> startTrackers = eventLatencyIntervals.FindAll(x => x.startEventType == tEventType);
+        foreach(EventLatencyTracker starter in startTrackers) {
+            starter.startEventTime = Time.time;
+            AddRecord(tEventType.ToString(), modifier);
+        }
+
+        List<EventLatencyTracker> endTrackers = eventLatencyIntervals.FindAll(x => x.endEventTypes.Contains(tEventType));
+        foreach(EventLatencyTracker ender in endTrackers) {
+            ender.endEventTime = Time.time;
+            float delta = ender.endEventTime - ender.startEventTime;
+            string output = ender.startEventType.ToString() + " latency, " + delta.ToString("0.00");
+            AddRecord(tEventType.ToString(), modifier + ", " + output);
+        }
+
+    }
+    
     //-----------------------------------------------------------------
 
     //public string csvString;
@@ -167,14 +218,35 @@ public class InstrumentManager : MonoBehaviour
         session.role = PlayerRoles.Whitehat;
         session.teammateSpecies = NewLobbyManager.teammateSpecies;
 
+        //TODO: send POST request 
+        StartCoroutine("PostUserGameData");
 
-        using(StreamWriter sw = new StreamWriter(File.Open(System.IO.Path.Combine(TaiserFolder, session.name+".csv"), FileMode.Create), Encoding.UTF8)) {
-            WriteHeader(sw);
-            WriteRecords(sw);
-        }
+        // using(StreamWriter sw = new StreamWriter(File.Open(System.IO.Path.Combine(TaiserFolder, session.name+".csv"), FileMode.Create), Encoding.UTF8)) {
+        //     WriteHeader(sw);
+        //     WriteRecords(sw);
+        // }
 
-        StartCoroutine("WriteToServer");
+        // StartCoroutine("WriteToServer");
     }
+
+     public IEnumerator PostUserGameData() {
+        var jsonData = JsonUtility.ToJson(session, true);
+        Debug.Log("<><><><><>" + jsonData);
+        using (UnityWebRequest req = UnityWebRequest.Post(String.Format("http://localhost:5001/api/createUserGameData"), jsonData))
+        {
+            req.SetRequestHeader("content-type", "application/json");
+            req.uploadHandler.contentType = "application/json";
+            req.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(jsonData));
+            yield return req.Send();
+            while(!req.isDone)
+                yield return null;
+            byte[] result = req.downloadHandler.data;
+            string jsonRes = System.Text.Encoding.UTF8.GetString(result);
+            Debug.Log(jsonRes);
+            System.IO.File.WriteAllText(Application.persistentDataPath + "/UserGameDataData.json", jsonRes);
+        }
+    }
+
     
     public void WriteHeader(StreamWriter sw)
     {
@@ -218,4 +290,75 @@ public class InstrumentManager : MonoBehaviour
         }
         return modifiers;
     }
+    [System.Serializable]
+    public class Events {
+        public string eventName;
+        public string time;
+        public string building;
+        public string rule;
+        public string advisor;
+        public string latency;
+    }
+    [System.Serializable]
+    public class UserGameData {
+        public string aliasName;
+        public double blackHatScore;
+        public double whiteHatScore;
+        public string studyId;
+        public string settingsId;
+        public string gameMode;
+        public List<Events> events;
+
+    }
+
+    public UserGameData userGameDataSession = new UserGameData();
+
+    public void AddEvents(string eventName, string building="", string rule="", string advisor="", string latency="") {
+        Events events = new Events();
+
+        events.time = Time.time.ToString();
+        events.eventName = eventName;
+        events.building = building;
+        events.rule = rule;
+        events.advisor = advisor;
+        events.latency = latency;
+
+        userGameDataSession.events.Add(events);
+    }
+
+    public void WriteUserGameDataSession() {
+        userGameDataSession.aliasName = "Sajal";
+        userGameDataSession.blackHatScore = 343.34;
+        userGameDataSession.whiteHatScore = 343.33;
+        userGameDataSession.studyId = "Dfdfdfsafg";
+        userGameDataSession.settingsId = "dfdfdfdd";
+        userGameDataSession.gameMode = "Session";
+
+        
+        //TODO: post userGameData to server. 
+        Debug.Log("userGameDataSession.aliasName " + ">>>>>" + userGameDataSession.aliasName);
+        foreach( var x in  userGameDataSession.events) {
+            Debug.Log("userGameDataSession.events " + ">>>>" + x.ToString());
+        }
+        Debug.Log("userGameDataSession.events " + ">>>>" + userGameDataSession.events);
+    }
+
+      public void AddRecord3(TaiserEventTypes tEventType, string building="", string rule="", string advisor="", string latency="")
+    {
+        List<EventLatencyTracker> startTrackers = eventLatencyIntervals.FindAll(x => x.startEventType == tEventType);
+        foreach(EventLatencyTracker starter in startTrackers) {
+            starter.startEventTime = Time.time;
+            AddEvents(tEventType.ToString(), building, rule, advisor, latency);
+        }
+
+        List<EventLatencyTracker> endTrackers = eventLatencyIntervals.FindAll(x => x.endEventTypes.Contains(tEventType));
+        foreach(EventLatencyTracker ender in endTrackers) {
+            ender.endEventTime = Time.time;
+            float delta = ender.endEventTime - ender.startEventTime;
+            string output = ender.startEventType.ToString() + " latency, " + delta.ToString("0.00");
+            AddEvents(tEventType.ToString(), building, rule, advisor, latency=output);
+        }
+
+    }
+
 }

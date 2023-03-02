@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+
 using static NewGameManager;
 
 public class RuleSpecButtonManager : MonoBehaviour
@@ -292,7 +293,7 @@ public class RuleSpecButtonManager : MonoBehaviour
          }
         AcceptAdviceButton.interactable = false;
         // AdviceSpeciesButtonPanel.gameObject.SetActive(true);
-        InstrumentManager.inst.AddRecord(TaiserEventTypes.SetFireWallMethod.ToString(), TaiserEventTypes.RuleSet.ToString());
+        // InstrumentManager.inst.AddRecord(TaiserEventTypes.SetFireWallMethod.ToString(), TaiserEventTypes.RuleSet.ToString());
         NewGameManager.inst.ApplyFirewallRule(CurrentDestination, PlayerRuleSpec, false);
     }
 
@@ -315,7 +316,7 @@ public class RuleSpecButtonManager : MonoBehaviour
     {
         AcceptAdviceButton.interactable = false;
         // AdviceSpeciesButtonPanel.gameObject.SetActive(true);
-        InstrumentManager.inst.AddRecord(TaiserEventTypes.SetFireWallMethod.ToString(), TaiserEventTypes.AdviceAccepted.ToString());
+        // InstrumentManager.inst.AddRecord(TaiserEventTypes.SetFireWallMethod.ToString(), TaiserEventTypes.AdviceAccepted.ToString());
         NewGameManager.inst.ApplyFirewallRule(CurrentDestination, AdvisorRuleSpec, true);
     }
 
@@ -336,7 +337,8 @@ public class RuleSpecButtonManager : MonoBehaviour
     {
         Debug.Log("Picked human");
         // State = AdvisingState.Human;
-        InstrumentManager.inst.AddRecord(TaiserEventTypes.AdviseFromHumanOrAIorMe.ToString(), "Human");
+        InstrumentManager.inst.AddRecord2(TaiserEventTypes.PickedAdvisorType, "Human");
+        // InstrumentManager.inst.AddRecord3(TaiserEventTypes.PickedAdvisorType, "", "", "Human", "");
         StartCoroutine(ProvideAdviceWithDelay());
     }
     public void AskForAIAdvice()
@@ -344,7 +346,8 @@ public class RuleSpecButtonManager : MonoBehaviour
         Debug.Log("Picked AI");
         // State = AdvisingState.AI;
         //Show AI advice after interval
-        InstrumentManager.inst.AddRecord(TaiserEventTypes.AdviseFromHumanOrAIorMe.ToString(), "AI");
+        InstrumentManager.inst.AddRecord2(TaiserEventTypes.PickedAdvisorType, "AI");
+        //  InstrumentManager.inst.AddRecord3(TaiserEventTypes.PickedAdvisorType, "", "", "AI", "");
         StartCoroutine(ProvideAdviceWithDelay());
 
     }
@@ -352,7 +355,8 @@ public class RuleSpecButtonManager : MonoBehaviour
     
     public void AskMe()
     {
-        InstrumentManager.inst.AddRecord(TaiserEventTypes.AdviseFromHumanOrAIorMe.ToString(), "Me");
+        InstrumentManager.inst.AddRecord2(TaiserEventTypes.PickedAdvisorType, "Me");
+        //  InstrumentManager.inst.AddRecord3(TaiserEventTypes.PickedAdvisorType, "", "", "Me", "");
     }
 
     public float MinHumanTime = 1f;
@@ -387,18 +391,30 @@ public class RuleSpecButtonManager : MonoBehaviour
 
     }
 
+    public bool isFirstHumanAdvice = true;
+    public bool isFirstAIAdvice = true;
+
     public void ProvideAdvice()
     {
         bool isCorrect = (State == AdvisingState.Human ? 
             AdviceRandomizerFlip(HumanDecisionRandomizer, HumanCorrectAdviceProbability) :
             AdviceRandomizerFlip(AIDecisionRandomizer, AICorrectAdviceProbability));
+        if(isFirstAIAdvice && advisingState == AdvisingState.AI) {
+            isCorrect = true;
+            isFirstAIAdvice = false;
+        }
+        if(isFirstHumanAdvice && advisingState == AdvisingState.Human) {
+            isCorrect = true;
+            isFirstHumanAdvice = false;
+        }
         if(isCorrect) {
             AdvisorRuleSpec = CurrentDestination.MaliciousRule;
         } else {
             AdvisorRuleSpec = BlackhatAI.inst.CreateNonMaliciousPacketRuleForDestination(CurrentDestination);
         }
         DisplayPacketInformation(AdvisorRuleSpec, AdvisorPacketRuleTextList);
-
+        InstrumentManager.inst.AddRecord2(TaiserEventTypes.AdviceAppeared);
+        // InstrumentManager.inst.AddRecord3(TaiserEventTypes.AdviceAppeared,"","","","");
     }
 
 }
