@@ -24,6 +24,9 @@ public class TaiserSession
     public Difficulty gameDifficulty;
     public float whitehatScore;
     public float blackhatScore;
+    public string studyId;
+    public string settingsId;
+    public string gameMode;
     public List<TaiserRecord> records;
 }
 
@@ -168,7 +171,7 @@ public class InstrumentManager : MonoBehaviour
             AddRecord(tEventType.ToString(), modifier + ", " + output);
         }
 
-    }
+    }  
     
     //-----------------------------------------------------------------
 
@@ -213,18 +216,19 @@ public class InstrumentManager : MonoBehaviour
         session.dayAndTime = System.DateTime.Now.ToUniversalTime().ToString();
         //session.gameDifficulty = NewGameManager.inst.difficulty;
         string tmp = System.DateTime.Now.ToLocalTime().ToString();
-        session.name = (isDebug ? "sjl" : NewLobbyManager.thisPlayer.name + "_" + 
-            session.dayAndTime.Replace('/', '_').Replace(" ", "_").Replace(":", "_"));
-        session.role = PlayerRoles.Whitehat;
+        session.name = (isDebug ? "sjl" : NewLobbyManager.thisPlayer.name);
+        // session.role = PlayerRoles.Whitehat;
         session.teammateSpecies = NewLobbyManager.teammateSpecies;
-
+        session.settingsId = NewGameManager.inst.settingsId;
+        session.gameMode =  NewLobbyManager.gameMode.ToString(); 
+        session.studyId = NewGameManager.inst.studyId;
         //TODO: send POST request 
         StartCoroutine("PostUserGameData");
 
-        // using(StreamWriter sw = new StreamWriter(File.Open(System.IO.Path.Combine(TaiserFolder, session.name+".csv"), FileMode.Create), Encoding.UTF8)) {
-        //     WriteHeader(sw);
-        //     WriteRecords(sw);
-        // }
+        using(StreamWriter sw = new StreamWriter(File.Open(System.IO.Path.Combine(TaiserFolder, session.name+".csv"), FileMode.Create), Encoding.UTF8)) {
+            WriteHeader(sw);
+            WriteRecords(sw);
+        }
 
         // StartCoroutine("WriteToServer");
     }
@@ -243,7 +247,6 @@ public class InstrumentManager : MonoBehaviour
             byte[] result = req.downloadHandler.data;
             string jsonRes = System.Text.Encoding.UTF8.GetString(result);
             Debug.Log(jsonRes);
-            System.IO.File.WriteAllText(Application.persistentDataPath + "/UserGameDataData.json", jsonRes);
         }
     }
 

@@ -146,6 +146,7 @@ public class NewGameManager : MonoBehaviour
         HidePrototypes();
         StartWave();
         StartCoroutine(FetchParameters());
+        StartCoroutine(FetchSelectedStudyId());
     }
     public void Initialize()
     {
@@ -1065,6 +1066,11 @@ public class NewGameManager : MonoBehaviour
         }
     }
 
+    [System.Serializable]
+    public class SelectedStudyId {
+        public string studyId;
+    }
+
     public List<ParameterHolder> SettingsHolders = new List<ParameterHolder>();
     public IEnumerator FetchParameters() {
         using (UnityWebRequest req = UnityWebRequest.Get(String.Format("http://localhost:5001/api/getSelectedSettings")))
@@ -1078,9 +1084,22 @@ public class NewGameManager : MonoBehaviour
             extractSettings(info);
         }
     }
+    public string studyId;
+    public IEnumerator FetchSelectedStudyId() {
+        using (UnityWebRequest req = UnityWebRequest.Get(String.Format("http://localhost:5001/api/getSelectedStudy")))
+        {
+            yield return req.Send();
+            while(!req.isDone)
+                yield return null;
+            byte[] result = req.downloadHandler.data;
+            string jsonData = System.Text.Encoding.UTF8.GetString(result);
+            SelectedStudyId info = JsonUtility.FromJson<SelectedStudyId>(jsonData);
+            studyId = info.studyId;
+        }
+    }
 
 
-
+    public string settingsId;
     public void extractSettings(ParameterInfo settings) {
 
             string gameMode; 
@@ -1089,7 +1108,7 @@ public class NewGameManager : MonoBehaviour
             } else {
                 gameMode = "training";
             }
-
+            settingsId = settings._id;
             ParameterHolder ph = new ParameterHolder();
             
             ph.parameterName = ParameterNames.MaxWaves;
