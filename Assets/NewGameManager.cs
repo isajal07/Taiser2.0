@@ -538,9 +538,11 @@ public class NewGameManager : MonoBehaviour
 
     public Text VictoryOrDefeatText;
     public Text AnotherWaveAwaitsMessageText;
+    public GameObject BackToGameButton;
     public void EndWave()
     {
         //Debug.Log("Ending Wave: " + currentWaveNumber + ", isCorrectIndex: " + isCorrectIndex + ", endedSrcs: " + endedSources);
+        BackToGameButton.SetActive(false);
         Debug.Log("Ending Wave: " + currentWaveNumber + ", endedSrcs: " + endedSources);
         State = GameState.WaveEnd;
         ResetVars();
@@ -611,11 +613,11 @@ public class NewGameManager : MonoBehaviour
         if(currentWaveNumber < maxWaves) {
             StartWave();//Startwave unpauses destination clocks
         } else {
-            //TODO: add spiner to disable the menu buttons to save the game
            
             InstrumentManager.inst.WriteSession();
             // InstrumentManager.inst.WriteUserGameDataSession();
             State = GameState.Menu;
+
             StartCoroutine("DisplaySavingDataMessage");
             ResetGame();
         }
