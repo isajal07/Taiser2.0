@@ -422,8 +422,18 @@ public class RuleSpecButtonManager : MonoBehaviour
             AdvisorRuleSpec = BlackhatAI.inst.CreateNonMaliciousPacketRuleForDestination(CurrentDestination);
         }
         DisplayPacketInformation(AdvisorRuleSpec, AdvisorPacketRuleTextList);
-        InstrumentManager.inst.AddRecord2(TaiserEventTypes.AdviceAppeared);
-        // InstrumentManager.inst.AddRecord3(TaiserEventTypes.AdviceAppeared,"","","","");
+        InstrumentManager.inst.AddRecord2(TaiserEventTypes.AdviceAppeared, AdvisorRuleSpec.ToString());
     }
 
+    public float PacketBarHoverStartTime;
+    public List<float> PacketBarHoverDurations; 
+    public void packetBarHover() {
+        PacketBarHoverStartTime = Time.time;
+    }
+
+    public void packetBarHoverExit() {
+        PacketBarHoverDurations.Add(Time.time - PacketBarHoverStartTime);
+        float packetHoveredLatenct = Time.time - PacketBarHoverStartTime;
+        InstrumentManager.inst.AddRecord(TaiserEventTypes.PacketsHovered, packetHoveredLatenct.ToString());
+    }   
 }

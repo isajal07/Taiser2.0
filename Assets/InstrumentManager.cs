@@ -69,7 +69,8 @@ public enum TaiserEventTypes
     MaliciousPacketUnfiltered_BadForUs,
     PickedAdvisorType,
     AdviceAppeared,
-    BackButtonNoFirewallSet
+    BackButtonNoFirewallSet,
+    PacketsHovered,
     
 }
 
