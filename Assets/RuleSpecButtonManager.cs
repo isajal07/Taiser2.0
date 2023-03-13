@@ -255,7 +255,7 @@ public class RuleSpecButtonManager : MonoBehaviour
     public void OnPacketClicked(LightWeightPacket packet)
     {
         ClickedPacketRuleSpec = packet;
-        DisplayPacketInformation(packet, ClickedPacketRuleTextList); // expand on this
+        DisplayClickedPacketInformation(packet, ClickedPacketRuleTextList); // expand on this
         InstrumentManager.inst.AddRecord(TaiserEventTypes.PacketInspect.ToString(), packet.ToString());
     }
 
@@ -266,6 +266,15 @@ public class RuleSpecButtonManager : MonoBehaviour
         RuleTextList[1].text = packet.color.ToString();
         RuleTextList[1].color = TextColors[(int) packet.color];
         RuleTextList[2].text = packet.shape.ToString();
+    }
+
+    public void DisplayClickedPacketInformation(LightWeightPacket packet, List<Text> RuleTextList)
+    {
+        RuleTextList[0].text = packet.size.ToString();
+        RuleTextList[0].fontSize = FontSizes[(int) packet.size];
+        RuleTextList[1].text = packet.color.ToString();
+        RuleTextList[1].color = TextColors[(int) packet.color];
+        RuleTextList[2].text = "?";
     }
 
     public void ClearPacketInformation(List<Text> RuleTextList)
@@ -413,8 +422,18 @@ public class RuleSpecButtonManager : MonoBehaviour
             AdvisorRuleSpec = BlackhatAI.inst.CreateNonMaliciousPacketRuleForDestination(CurrentDestination);
         }
         DisplayPacketInformation(AdvisorRuleSpec, AdvisorPacketRuleTextList);
-        InstrumentManager.inst.AddRecord2(TaiserEventTypes.AdviceAppeared);
-        // InstrumentManager.inst.AddRecord3(TaiserEventTypes.AdviceAppeared,"","","","");
+        InstrumentManager.inst.AddRecord2(TaiserEventTypes.AdviceAppeared, AdvisorRuleSpec.ToString());
     }
 
+    public float PacketBarHoverStartTime;
+    public List<float> PacketBarHoverDurations; 
+    public void packetBarHover() {
+        PacketBarHoverStartTime = Time.time;
+    }
+
+    public void packetBarHoverExit() {
+        PacketBarHoverDurations.Add(Time.time - PacketBarHoverStartTime);
+        float packetHoveredLatenct = Time.time - PacketBarHoverStartTime;
+        InstrumentManager.inst.AddRecord(TaiserEventTypes.PacketsHovered, packetHoveredLatenct.ToString());
+    }   
 }

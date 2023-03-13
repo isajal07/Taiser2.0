@@ -105,7 +105,7 @@ public class Destination : MonoBehaviour
                 GrowCube();
                 TLogPacket(tPack);
                 EffectsManager.inst.MaliciousUnfilteredPacket(this, tPack.packet);
-                InstrumentManager.inst.AddRecord(TaiserEventTypes.MaliciousPacketUnfiltered_BadForUs.ToString(), inGameName);
+                // InstrumentManager.inst.AddRecord(TaiserEventTypes.MaliciousPacketUnfiltered_BadForUs.ToString(), inGameName);
                 // NewAudioManager.inst.source.PlayOneShot(NewAudioManager.inst.maliciousUnfiltered);
 
             } else if (tPack.packet.isMalicious && isPacketFiltered(tPack)) {
@@ -113,7 +113,7 @@ public class Destination : MonoBehaviour
                 maliciousFilteredCount += 1;
                 ShrinkCube();
                 EffectsManager.inst.MaliciousFilteredPacket(this, tPack.packet);
-                InstrumentManager.inst.AddRecord(TaiserEventTypes.MaliciousPacketFiltered_GoodForUs.ToString(), inGameName);
+                // InstrumentManager.inst.AddRecord(TaiserEventTypes.MaliciousPacketFiltered_GoodForUs.ToString(), inGameName);
                 // NewAudioManager.inst.source.PlayOneShot(NewAudioManager.inst.maliciousFiltered);
 
             } // ! malicious but filtered ==> oopsie penalty in score

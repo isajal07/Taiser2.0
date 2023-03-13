@@ -538,9 +538,11 @@ public class NewGameManager : MonoBehaviour
 
     public Text VictoryOrDefeatText;
     public Text AnotherWaveAwaitsMessageText;
+    public GameObject BackToGameButton;
     public void EndWave()
     {
         //Debug.Log("Ending Wave: " + currentWaveNumber + ", isCorrectIndex: " + isCorrectIndex + ", endedSrcs: " + endedSources);
+        BackToGameButton.SetActive(false);
         Debug.Log("Ending Wave: " + currentWaveNumber + ", endedSrcs: " + endedSources);
         State = GameState.WaveEnd;
         ResetVars();
@@ -611,11 +613,11 @@ public class NewGameManager : MonoBehaviour
         if(currentWaveNumber < maxWaves) {
             StartWave();//Startwave unpauses destination clocks
         } else {
-            //TODO: add spiner to disable the menu buttons to save the game
            
             InstrumentManager.inst.WriteSession();
             // InstrumentManager.inst.WriteUserGameDataSession();
             State = GameState.Menu;
+
             StartCoroutine("DisplaySavingDataMessage");
             ResetGame();
         }
@@ -1073,7 +1075,7 @@ public class NewGameManager : MonoBehaviour
 
     public List<ParameterHolder> SettingsHolders = new List<ParameterHolder>();
     public IEnumerator FetchParameters() {
-        using (UnityWebRequest req = UnityWebRequest.Get(String.Format("http://localhost:5001/api/getSelectedSettings")))
+        using (UnityWebRequest req = UnityWebRequest.Get(String.Format("http://100.21.236.127:5001/api/getSelectedSettings")))
         {
             yield return req.Send();
             while(!req.isDone)
@@ -1086,7 +1088,7 @@ public class NewGameManager : MonoBehaviour
     }
     public string studyId;
     public IEnumerator FetchSelectedStudyId() {
-        using (UnityWebRequest req = UnityWebRequest.Get(String.Format("http://localhost:5001/api/getSelectedStudy")))
+        using (UnityWebRequest req = UnityWebRequest.Get(String.Format("http://100.21.236.127:5001/api/getSelectedStudy")))
         {
             yield return req.Send();
             while(!req.isDone)
