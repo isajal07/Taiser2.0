@@ -425,7 +425,7 @@ public class RuleSpecButtonManager : MonoBehaviour
         InstrumentManager.inst.AddRecord2(TaiserEventTypes.AdviceAppeared, AdvisorRuleSpec.ToString());
     }
 
-    public float PacketBarHoverStartTime;
+    private float PacketBarHoverStartTime;
     public List<float> PacketBarHoverDurations; 
     public void packetBarHover() {
         PacketBarHoverStartTime = Time.time;
