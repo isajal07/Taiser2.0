@@ -1075,7 +1075,7 @@ public class NewGameManager : MonoBehaviour
 
     public List<ParameterHolder> SettingsHolders = new List<ParameterHolder>();
     public IEnumerator FetchParameters() {
-        using (UnityWebRequest req = UnityWebRequest.Get(String.Format("http://100.21.236.127:5001/api/getSelectedSettings")))
+        using (UnityWebRequest req = UnityWebRequest.Get(String.Format("https://taiser2.site:5001/api/getSelectedSettings")))
         {
             yield return req.Send();
             while(!req.isDone)
@@ -1088,7 +1088,7 @@ public class NewGameManager : MonoBehaviour
     }
     public string studyId;
     public IEnumerator FetchSelectedStudyId() {
-        using (UnityWebRequest req = UnityWebRequest.Get(String.Format("http://100.21.236.127:5001/api/getSelectedStudy")))
+        using (UnityWebRequest req = UnityWebRequest.Get(String.Format("https://taiser2.site:5001/api/getSelectedStudy")))
         {
             yield return req.Send();
             while(!req.isDone)
