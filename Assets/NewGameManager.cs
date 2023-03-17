@@ -835,7 +835,22 @@ public class NewGameManager : MonoBehaviour
     }
 
     
+   public GameObject FirewallAlertPanel;
+   public Text FirewallAlertText;
+   public GameObject FirewallAlertColor;
 
+   public void SetFirewallAlert(string alertText, Color alertColor) {
+        float displayTime = 2.0f;
+        FirewallAlertPanel.SetActive(true);
+        FirewallAlertText.text = alertText;
+        FirewallAlertText.color = alertColor;
+        Image image = FirewallAlertColor.GetComponent<Image>();
+        image.color = alertColor;
+        Invoke("HideFirewallAlert", displayTime);
+   }
+    void HideFirewallAlert() {
+        FirewallAlertPanel.SetActive(false);
+    }
    public void ApplyFirewallRule(Destination destination, LightWeightPacket packet, bool isAdvice)
     {
         if(packet == null) return; //------------------------------------------
@@ -843,22 +858,21 @@ public class NewGameManager : MonoBehaviour
         destination.FilterOnRule(packet);
 
         if(packet.isEqual(destination.MaliciousRule)) {
+            SetFirewallAlert("Correct Firewall !", Color.green);
             if(isAdvice)
             {
                 InstrumentManager.inst.AddRecord2(TaiserEventTypes.AdvisedFirewallCorrectAndSet);
-                // InstrumentManager.inst.AddRecord3(TaiserEventTypes.AdvisedFirewallCorrectAndSet, "","","","");
              } else {
-                InstrumentManager.inst.AddRecord2(TaiserEventTypes.UserBuiltFirewallCorrectAndSet);
-                // InstrumentManager.inst.AddRecord3(TaiserEventTypes.UserBuiltFirewallCorrectAndSet, "","","","");            
+                InstrumentManager.inst.AddRecord2(TaiserEventTypes.UserBuiltFirewallCorrectAndSet);        
             }//NewAudioMgr.inst.PlayOneShot(NewAudioMgr.inst.GoodFilterRule);
             EffectsManager.inst.GoodFilterApplied(destination, packet);
         } else {
+            Debug.Log("INCORRECT FIREWALL!!");
+            SetFirewallAlert("Incorrect Firewall !", Color.red);
             if(isAdvice)
              {   InstrumentManager.inst.AddRecord2(TaiserEventTypes.AdvisedFirewallIncorrectAndSet);
-                // InstrumentManager.inst.AddRecord3(TaiserEventTypes.AdvisedFirewallIncorrectAndSet,  "","","","");
              }else{
                 InstrumentManager.inst.AddRecord2(TaiserEventTypes.UserBuiltFirewallIncorrectAndSet);
-                // InstrumentManager.inst.AddRecord3(TaiserEventTypes.UserBuiltFirewallIncorrectAndSet, "","","","");
              }
             EffectsManager.inst.BadFilterApplied(destination, packet);
             if(shouldApplyPenalty)
@@ -951,6 +965,8 @@ public class NewGameManager : MonoBehaviour
     public int penalty = 20;
     public int penaltyCount = 0;
     public RectTransform BlackFillArea;
+    public Button SetFirewallButton;
+    public Button IgnoreAdviceButton;
     public void ApplyScorePenalty()
     {
         penaltyCount++;
@@ -979,7 +995,18 @@ public class NewGameManager : MonoBehaviour
     //-------------------------------------------------------------------------------------
     public void OnMenuBackButton()
     {
+        SetFirewallButton.interactable = false;
+        IgnoreAdviceButton.interactable = false;
         InstrumentManager.inst.AddRecord2(TaiserEventTypes.BackButtonNoFirewallSet);
+        State = GameState.InWave;
+    }
+
+    public void OnIgnoreAdivceButton()
+    {
+        Debug.Log("IGNOREDDDDDDDDDD");
+        SetFirewallButton.interactable = false;
+        IgnoreAdviceButton.interactable = false;
+        InstrumentManager.inst.AddRecord2(TaiserEventTypes.IgnoredAdvice);
         State = GameState.InWave;
     }
 

@@ -71,6 +71,8 @@ public enum TaiserEventTypes
     AdviceAppeared,
     BackButtonNoFirewallSet,
     PacketsHovered,
+
+    IgnoredAdvice,
     
 }
 

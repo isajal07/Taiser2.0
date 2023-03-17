@@ -240,6 +240,9 @@ public class RuleSpecButtonManager : MonoBehaviour
     public List<Text> AdvisorPacketRuleTextList = new List<Text>();
     public GameObject PacketRuleTextListRoot;
     public GameObject AdvisorRuleTextListRoot;
+    public Button SetFirewallButton;
+    public Button IgnoreAdviceButton;
+
     [ContextMenu("SetupRuleTextLists")]
     public void SetupRuleTextLists()
     {
@@ -254,8 +257,10 @@ public class RuleSpecButtonManager : MonoBehaviour
     }
     public void OnPacketClicked(LightWeightPacket packet)
     {
+        SetFirewallButton.interactable = true;
+        IgnoreAdviceButton.interactable = true;
         ClickedPacketRuleSpec = packet;
-        DisplayClickedPacketInformation(packet, ClickedPacketRuleTextList); // expand on this
+        DisplayPacketInformation(packet, ClickedPacketRuleTextList); // expand on this
         InstrumentManager.inst.AddRecord(TaiserEventTypes.PacketInspect.ToString(), packet.ToString());
     }
 
@@ -268,14 +273,14 @@ public class RuleSpecButtonManager : MonoBehaviour
         RuleTextList[2].text = packet.shape.ToString();
     }
 
-    public void DisplayClickedPacketInformation(LightWeightPacket packet, List<Text> RuleTextList)
-    {
-        RuleTextList[0].text = packet.size.ToString();
-        RuleTextList[0].fontSize = FontSizes[(int) packet.size];
-        RuleTextList[1].text = packet.color.ToString();
-        RuleTextList[1].color = TextColors[(int) packet.color];
-        RuleTextList[2].text = "?";
-    }
+    // public void DisplayClickedPacketInformation(LightWeightPacket packet, List<Text> RuleTextList)
+    // {
+    //     RuleTextList[0].text = packet.size.ToString();
+    //     RuleTextList[0].fontSize = FontSizes[(int) packet.size];
+    //     RuleTextList[1].text = packet.color.ToString();
+    //     RuleTextList[1].color = TextColors[(int) packet.color];
+    //     RuleTextList[2].text = "?";
+    // }
 
     public void ClearPacketInformation(List<Text> RuleTextList)
     {
@@ -324,6 +329,8 @@ public class RuleSpecButtonManager : MonoBehaviour
     public void ApplyAdvice()
     {
         AcceptAdviceButton.interactable = false;
+        SetFirewallButton.interactable = false;
+        IgnoreAdviceButton.interactable = false;
         // AdviceSpeciesButtonPanel.gameObject.SetActive(true);
         // InstrumentManager.inst.AddRecord(TaiserEventTypes.SetFireWallMethod.ToString(), TaiserEventTypes.AdviceAccepted.ToString());
         NewGameManager.inst.ApplyFirewallRule(CurrentDestination, AdvisorRuleSpec, true);
@@ -394,7 +401,7 @@ public class RuleSpecButtonManager : MonoBehaviour
 
     void PostAdviceUIReset()
     {
-        AcceptAdviceButton.interactable = true;
+        // AcceptAdviceButton.interactable = true;
         Spinner.gameObject.SetActive(false);
         TeammateNameText.text = advisingState.ToString();
 
