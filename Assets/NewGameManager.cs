@@ -124,7 +124,15 @@ public class ParameterHolder
 {
     public ParameterNames parameterName;
     public float parameterValue = -1;
+    public List<float> parameterValues = new List<float>();
 }
+
+[System.Serializable]
+public class MultiParameterHolder
+{
+    public ParameterNames parameterName;
+}
+
 //-------------------------------------------------------------------------------------------
 public class NewGameManager : MonoBehaviour
 {
@@ -301,15 +309,12 @@ public class NewGameManager : MonoBehaviour
                         destination.maxTimeInterval = (int) ph.parameterValue;
                     }
                     break;
-                //----------------------------------------------------
-                // TODO: Set AICorrectAdviceProbability and HumanCorrectAdviceProbability with respect to wave
                 case ParameterNames.AICorrectProbability:
-                    RuleSpecButtonManager.inst.AICorrectAdviceProbability = ph.parameterValue;
+                    RuleSpecButtonManager.inst.AICorrectAdviceProbabilitys = ph.parameterValues;
                     break;
                 case ParameterNames.HumanCorrectProbability:
-                    RuleSpecButtonManager.inst.HumanCorrectAdviceProbability = ph.parameterValue;
+                    RuleSpecButtonManager.inst.HumanCorrectAdviceProbabilitys = ph.parameterValues;
                     break;
-                //----------------------------------------------------------------
                 case ParameterNames.MinHumanAdviceTimeInSeconds:
                     RuleSpecButtonManager.inst.MinHumanTime = ph.parameterValue;
                     break;
@@ -344,22 +349,22 @@ public class NewGameManager : MonoBehaviour
         }
     }
 
-    public void setHumanAICorrectAdviceProbablities() {
-        foreach(ParameterHolder ph in SettingsHolders) {
-            Debug.Log("$$parameterName: "+ ph.parameterName + "$$parametervalue: "+ ph.parameterValue);
-            switch(ph.parameterName) {
-                case ParameterNames.AICorrectProbability:
-                    RuleSpecButtonManager.inst.AICorrectAdviceProbability = ph.parameterValue;
-                    break;
-                case ParameterNames.HumanCorrectProbability:
-                    RuleSpecButtonManager.inst.HumanCorrectAdviceProbability = ph.parameterValue;
-                    break;
-                default:
-                    Debug.Log("Unknown game parameter name: " + ph.parameterName + ": " + ph.parameterValue);
-                    break;
-            }
-        }
-    }
+    // public void setHumanAICorrectAdviceProbablities() {
+    //     foreach(ParameterHolder ph in SettingsHolders) {
+    //         Debug.Log("$$parameterName: "+ ph.parameterName + "$$parametervalue: "+ ph.parameterValue);
+    //         switch(ph.parameterName) {
+    //             case ParameterNames.AICorrectProbability:
+    //                 RuleSpecButtonManager.inst.AICorrectAdviceProbabilitys = ph.parameterValue;
+    //                 break;
+    //             case ParameterNames.HumanCorrectProbability:
+    //                 RuleSpecButtonManager.inst.HumanCorrectAdviceProbabilitys = ph.parameterValue;
+    //                 break;
+    //             default:
+    //                 Debug.Log("Unknown game parameter name: " + ph.parameterName + ": " + ph.parameterValue);
+    //                 break;
+    //         }
+    //     }
+    // }
 
     [ContextMenu("TestFlip")]
     public void TestFlip()
@@ -1209,15 +1214,19 @@ public class NewGameManager : MonoBehaviour
             ph13.parameterValue = settings[gameMode].difficultyRatio;
             SettingsHolders.Add(ph13);
 
-            // AICorrectProbability, HumanCorrectProbability,
+
             ParameterHolder ph14 = new ParameterHolder();
             ph14.parameterName = ParameterNames.AICorrectProbability;
-            ph14.parameterValue = settings[gameMode].accuracies[0].AICorrectProbability;
-            SettingsHolders.Add(ph14);
 
             ParameterHolder ph15 = new ParameterHolder();
             ph15.parameterName = ParameterNames.HumanCorrectProbability;
-            ph15.parameterValue = settings[gameMode].accuracies[0].humanCorrectProbability;
+
+            for (int i = 0; i < settings[gameMode].maxWaves; i++) {
+                ph14.parameterValues.Add(settings[gameMode].accuracies[i].AICorrectProbability);
+                ph15.parameterValues.Add(settings[gameMode].accuracies[i].humanCorrectProbability);
+            }
+
+            SettingsHolders.Add(ph14);
             SettingsHolders.Add(ph15);
 
             
