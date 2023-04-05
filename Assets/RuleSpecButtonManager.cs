@@ -242,6 +242,8 @@ public class RuleSpecButtonManager : MonoBehaviour
     public GameObject AdvisorRuleTextListRoot;
     public Button SetFirewallButton;
     public Button IgnoreAdviceButton;
+    public bool packetClicked = false;
+    public bool adviceProvided = false;
 
     [ContextMenu("SetupRuleTextLists")]
     public void SetupRuleTextLists()
@@ -257,8 +259,11 @@ public class RuleSpecButtonManager : MonoBehaviour
     }
     public void OnPacketClicked(LightWeightPacket packet)
     {
-        SetFirewallButton.interactable = true;
-        IgnoreAdviceButton.interactable = true;
+       if(adviceProvided) {
+          SetFirewallButton.interactable = true;
+          IgnoreAdviceButton.interactable = true;
+        }
+        packetClicked = true;
         ClickedPacketRuleSpec = packet;
         DisplayPacketInformation(packet, ClickedPacketRuleTextList); // expand on this
         InstrumentManager.inst.AddRecord(TaiserEventTypes.PacketInspect.ToString(), packet.ToString());
@@ -306,6 +311,8 @@ public class RuleSpecButtonManager : MonoBehaviour
             }
          }
         AcceptAdviceButton.interactable = false;
+        packetClicked = false;
+        adviceProvided = false;
         // AdviceSpeciesButtonPanel.gameObject.SetActive(true);
         // InstrumentManager.inst.AddRecord(TaiserEventTypes.SetFireWallMethod.ToString(), TaiserEventTypes.RuleSet.ToString());
         NewGameManager.inst.ApplyFirewallRule(CurrentDestination, PlayerRuleSpec, false);
@@ -317,6 +324,8 @@ public class RuleSpecButtonManager : MonoBehaviour
     public void ApplyClickedPacketRule()
     {
         AcceptAdviceButton.interactable = false;
+        packetClicked = false;
+        adviceProvided = false;
         // AdviceSpeciesButtonPanel.gameObject.SetActive(true);
         NewGameManager.inst.ApplyFirewallRule(CurrentDestination, ClickedPacketRuleSpec, false);
 
@@ -331,6 +340,8 @@ public class RuleSpecButtonManager : MonoBehaviour
         AcceptAdviceButton.interactable = false;
         SetFirewallButton.interactable = false;
         IgnoreAdviceButton.interactable = false;
+        packetClicked = false;
+        adviceProvided = false;
         // AdviceSpeciesButtonPanel.gameObject.SetActive(true);
         // InstrumentManager.inst.AddRecord(TaiserEventTypes.SetFireWallMethod.ToString(), TaiserEventTypes.AdviceAccepted.ToString());
         NewGameManager.inst.ApplyFirewallRule(CurrentDestination, AdvisorRuleSpec, true);
@@ -395,13 +406,18 @@ public class RuleSpecButtonManager : MonoBehaviour
     void PreAdviceUISetup()
     {
         // AdviceSpeciesButtonPanel.gameObject.SetActive(false);
+        // SetFirewallButton.interactable = false;
+        // IgnoreAdviceButton.interactable = false;
         Spinner.gameObject.SetActive(true);
+        
         TeammateNameText.text = "Getting advice";
     }
 
     void PostAdviceUIReset()
     {
         // AcceptAdviceButton.interactable = true;
+        // SetFirewallButton.interactable = true;
+        // IgnoreAdviceButton.interactable = true;
         Spinner.gameObject.SetActive(false);
         TeammateNameText.text = advisingState.ToString();
 
@@ -412,6 +428,7 @@ public class RuleSpecButtonManager : MonoBehaviour
 
     public void ProvideAdvice()
     {
+        adviceProvided = true;
         bool isCorrect = (State == AdvisingState.Human ? 
             AdviceRandomizerFlip(HumanDecisionRandomizer, HumanCorrectAdviceProbability) :
             AdviceRandomizerFlip(AIDecisionRandomizer, AICorrectAdviceProbability));
@@ -430,6 +447,12 @@ public class RuleSpecButtonManager : MonoBehaviour
         }
         DisplayPacketInformation(AdvisorRuleSpec, AdvisorPacketRuleTextList);
         InstrumentManager.inst.AddRecord2(TaiserEventTypes.AdviceAppeared, AdvisorRuleSpec.ToString());
+        // adviceProvided = true;
+
+        if(packetClicked) {
+           SetFirewallButton.interactable = true;
+           IgnoreAdviceButton.interactable = true;
+        }
     }
 
     private float PacketBarHoverStartTime;
