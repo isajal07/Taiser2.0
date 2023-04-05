@@ -124,8 +124,8 @@ public class RuleSpecButtonManager : MonoBehaviour
     //-------------------------------------------------------------------------------------
 
 
-    public List<float> HumanCorrectAdviceProbabilitys = new List<float>();
-    public List<float> AICorrectAdviceProbabilitys = new List<float>();
+    public float HumanCorrectAdviceProbability = 0.8f;
+    public float AICorrectAdviceProbability = 0.8f;
     public int AIRandomizerSeed = 4321;
     public int HumanRandomizerSeed = 6789;
     public System.Random AIDecisionRandomizer;
@@ -412,13 +412,9 @@ public class RuleSpecButtonManager : MonoBehaviour
 
     public void ProvideAdvice()
     {
-        int wave = NewGameManager.inst.currentWaveNumber;
-        float humanCorrectProbability = HumanCorrectAdviceProbabilitys[wave];
-        float aiCorrectAdviceProbability = AICorrectAdviceProbabilitys[wave];
-        Debug.Log("Human prob:>>>> " + humanCorrectProbability + "AI prob:>>>> " + aiCorrectAdviceProbability);
         bool isCorrect = (State == AdvisingState.Human ? 
-            AdviceRandomizerFlip(HumanDecisionRandomizer, humanCorrectProbability) :
-            AdviceRandomizerFlip(AIDecisionRandomizer, aiCorrectAdviceProbability));
+            AdviceRandomizerFlip(HumanDecisionRandomizer, HumanCorrectAdviceProbability) :
+            AdviceRandomizerFlip(AIDecisionRandomizer, AICorrectAdviceProbability));
         if(isFirstAIAdvice && advisingState == AdvisingState.AI) {
             isCorrect = true;
             isFirstAIAdvice = false;

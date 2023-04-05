@@ -124,14 +124,14 @@ public class ParameterHolder
 {
     public ParameterNames parameterName;
     public float parameterValue = -1;
-    public List<float> parameterValues = new List<float>();
+    // public List<float> parameterValues = new List<float>();
 }
 
-[System.Serializable]
-public class MultiParameterHolder
-{
-    public ParameterNames parameterName;
-}
+// [System.Serializable]
+// public class MultiParameterHolder
+// {
+//     public ParameterNames parameterName;
+// }
 
 //-------------------------------------------------------------------------------------------
 public class NewGameManager : MonoBehaviour
@@ -275,7 +275,7 @@ public class NewGameManager : MonoBehaviour
     public void SetGameParameters()
     {
         foreach(ParameterHolder ph in SettingsHolders) {
-            Debug.Log("parameterName: "+ ph.parameterName + "parametervalue: "+ ph.parameterValue);
+            Debug.Log(ph.parameterName + ": "+ ph.parameterValue);
             switch(ph.parameterName) {
                 case ParameterNames.MaxWaves:
                     maxWaves = (int) ph.parameterValue;
@@ -310,10 +310,10 @@ public class NewGameManager : MonoBehaviour
                     }
                     break;
                 case ParameterNames.AICorrectProbability:
-                    RuleSpecButtonManager.inst.AICorrectAdviceProbabilitys = ph.parameterValues;
+                    RuleSpecButtonManager.inst.AICorrectAdviceProbability = ph.parameterValue;
                     break;
                 case ParameterNames.HumanCorrectProbability:
-                    RuleSpecButtonManager.inst.HumanCorrectAdviceProbabilitys = ph.parameterValues;
+                    RuleSpecButtonManager.inst.HumanCorrectAdviceProbability = ph.parameterValue;
                     break;
                 case ParameterNames.MinHumanAdviceTimeInSeconds:
                     RuleSpecButtonManager.inst.MinHumanTime = ph.parameterValue;
@@ -334,13 +334,13 @@ public class NewGameManager : MonoBehaviour
                 case ParameterNames.HumanRandomSeed:
                     RuleSpecButtonManager.inst.HumanRandomizerSeed = (int) ph.parameterValue;//6789
                     break;
-                case ParameterNames.DifficultyRatio:
-                    Debug.Log("Game Mode: " + NewLobbyManager.gameMode);
-                    if(NewLobbyManager.gameMode == GameMode.Session)
-                        PacketSpeed = DefaultPacketSpeed;
-                    else
-                        PacketSpeed = DefaultPacketSpeed * ph.parameterValue;
-                    break;
+                // case ParameterNames.DifficultyRatio:
+                //     Debug.Log("Game Mode: " + NewLobbyManager.gameMode);
+                //     if(NewLobbyManager.gameMode == GameMode.Session)
+                //         PacketSpeed = DefaultPacketSpeed;
+                //     else
+                //         PacketSpeed = DefaultPacketSpeed * ph.parameterValue;
+                //     break;
 
                 default:
                     Debug.Log("Unknown game parameter name: " + ph.parameterName + ": " + ph.parameterValue);
@@ -447,9 +447,8 @@ public class NewGameManager : MonoBehaviour
     public void StartWave()
     {
         State = GameState.WaveStart;
-        // Debug.Log("<><><><><><><><> " + maxWaves);
         Debug.Log("Startwave: " + currentWaveNumber);
-        
+        // Debug.Log("<><><><><><><><> " + maxWaves);
         InstrumentManager.inst.AddRecord(TaiserEventTypes.StartWave.ToString());
         // SetWaveNumberEffect(Color.green);
         CurrentWaveText.text = (currentWaveNumber + 1).ToString();
@@ -616,7 +615,10 @@ public class NewGameManager : MonoBehaviour
         SetWaveEndScores();
         Debug.Log("Waiting to start next wave: " + currentWaveNumber);
         if(currentWaveNumber < maxWaves) {
+            extractSettings(SettingResponse, currentWaveNumber);
+            Debug.Log("XXXXXXXXXXXXXXXXXXXXXXXXX " + currentWaveNumber);
             StartWave();//Startwave unpauses destination clocks
+
         } else {
            
             InstrumentManager.inst.WriteSession();
@@ -1050,16 +1052,11 @@ public class NewGameManager : MonoBehaviour
     //----------------------------------------------------------------------------------------------------
 
  [System.Serializable]
-    public class Accuracies {
+    public class WaveParameters {
         public int wave;
         public float AICorrectProbability;
         public float humanCorrectProbability; 
         public string _id;
-    }
-     [System.Serializable]
-    public class GameModeParameters {
-        public int maxWaves;
-        public List<Accuracies> accuracies;
         public int penalty;
         public float maliciousPacketProbability;
         public float intervalBetweenPackets;
@@ -1070,9 +1067,13 @@ public class NewGameManager : MonoBehaviour
         public float maxHumanAdviceTimeInSeconds;
         public float minAIAdviceTimeInSeconds;
         public float maxAIAdviceTimeInSeconds;
+    }
+     [System.Serializable]
+    public class GameModeParameters {
+        public int maxWaves;
+        public List<WaveParameters> waveParameters;
         public float AIRandomSeed;
         public float humanRandomSeed;
-        public float difficultyRatio;
         public string _id;
     }
     [System.Serializable]
@@ -1106,8 +1107,9 @@ public class NewGameManager : MonoBehaviour
     }
 
     public List<ParameterHolder> SettingsHolders = new List<ParameterHolder>();
+    public ParameterInfo SettingResponse;
     public IEnumerator FetchParameters() {
-        using (UnityWebRequest req = UnityWebRequest.Get(String.Format("https://taiser2.site:5001/api/getSelectedSettings")))
+        using (UnityWebRequest req = UnityWebRequest.Get(String.Format("http://localhost:5001/api/getSelectedSettings")))
         {
             yield return req.Send();
             while(!req.isDone)
@@ -1115,12 +1117,16 @@ public class NewGameManager : MonoBehaviour
             byte[] result = req.downloadHandler.data;
             string jsonData = System.Text.Encoding.UTF8.GetString(result);
             ParameterInfo info = JsonUtility.FromJson<ParameterInfo>(jsonData);
+            // var output = JsonUtility.ToJson(info, true);
+            // Debug.Log(output);
+
+            SettingResponse = info;
             extractSettings(info);
         }
     }
     public string studyId;
     public IEnumerator FetchSelectedStudyId() {
-        using (UnityWebRequest req = UnityWebRequest.Get(String.Format("https://taiser2.site:5001/api/getSelectedStudy")))
+        using (UnityWebRequest req = UnityWebRequest.Get(String.Format("http://localhost:5001/api/getSelectedStudy")))
         {
             yield return req.Send();
             while(!req.isDone)
@@ -1134,7 +1140,7 @@ public class NewGameManager : MonoBehaviour
 
 
     public string settingsId;
-    public void extractSettings(ParameterInfo settings) {
+    public void extractSettings(ParameterInfo settings, int wave=0) {
 
             string gameMode; 
             if(NewLobbyManager.gameMode == GameMode.Session) {
@@ -1151,53 +1157,63 @@ public class NewGameManager : MonoBehaviour
 
             ParameterHolder ph1 = new ParameterHolder();
             ph1.parameterName = ParameterNames.Penalty;
-            ph1.parameterValue = settings[gameMode].penalty;
+            ph1.parameterValue = settings[gameMode].waveParameters[wave].penalty;
             SettingsHolders.Add(ph1);
 
             ParameterHolder ph2 = new ParameterHolder();
             ph2.parameterName = ParameterNames.MaliciousPacketProbability;
-            ph2.parameterValue = settings[gameMode].maliciousPacketProbability;
+            ph2.parameterValue = settings[gameMode].waveParameters[wave].maliciousPacketProbability;
             SettingsHolders.Add(ph2);
 
             ParameterHolder ph3 = new ParameterHolder();
             ph3.parameterName = ParameterNames.IntervalBetweenPackets;
-            ph3.parameterValue = settings[gameMode].intervalBetweenPackets;
-            SettingsHolders.Add(ph3);
+            ph3.parameterValue = settings[gameMode].waveParameters[wave].intervalBetweenPackets;
+           SettingsHolders.Add(ph3);
 
             ParameterHolder ph4 = new ParameterHolder();
             ph4.parameterName = ParameterNames.MaxNumberOfPackets;
-            ph4.parameterValue = settings[gameMode].maxNumberOfPackets;
+            ph4.parameterValue = settings[gameMode].waveParameters[wave].maxNumberOfPackets;
             SettingsHolders.Add(ph4);
             
             ParameterHolder ph5 = new ParameterHolder();
             ph5.parameterName = ParameterNames.MinIntervalBetweenRuleChanges;
-            ph5.parameterValue = settings[gameMode].minIntervalBetweenRuleChanges;
+            ph5.parameterValue = settings[gameMode].waveParameters[wave].maxAIAdviceTimeInSeconds;
             SettingsHolders.Add(ph5);
             
             ParameterHolder ph6 = new ParameterHolder();
             ph6.parameterName = ParameterNames.MaxIntervalBetweenRuleChanges;
-            ph6.parameterValue = settings[gameMode].maxIntervalBetweenRuleChanges;
-            SettingsHolders.Add(ph6);
+            ph6.parameterValue = settings[gameMode].waveParameters[wave].maxIntervalBetweenRuleChanges;
+           SettingsHolders.Add(ph6);
             
             ParameterHolder ph7 = new ParameterHolder();
             ph7.parameterName = ParameterNames.MinHumanAdviceTimeInSeconds;
-            ph7.parameterValue = settings[gameMode].minHumanAdviceTimeInSeconds;
+            ph7.parameterValue = settings[gameMode].waveParameters[wave].minHumanAdviceTimeInSeconds;
             SettingsHolders.Add(ph7);
 
             ParameterHolder ph8 = new ParameterHolder();
             ph8.parameterName = ParameterNames.MaxHumanAdviceTimeInSeconds;
-            ph8.parameterValue = settings[gameMode].maxHumanAdviceTimeInSeconds;
+            ph8.parameterValue = settings[gameMode].waveParameters[wave].maxHumanAdviceTimeInSeconds;
             SettingsHolders.Add(ph8);
 
             ParameterHolder ph9 = new ParameterHolder();
             ph9.parameterName = ParameterNames.MinAIAdviceTimeInSeconds;
-            ph9.parameterValue = settings[gameMode].minAIAdviceTimeInSeconds;
+            ph9.parameterValue = settings[gameMode].waveParameters[wave].minAIAdviceTimeInSeconds;
             SettingsHolders.Add(ph9);
-            
+
             ParameterHolder ph10 = new ParameterHolder();
             ph10.parameterName = ParameterNames.MaxAIAdviceTimeInSeconds;
-            ph10.parameterValue = settings[gameMode].maxAIAdviceTimeInSeconds;
+            ph10.parameterValue = settings[gameMode].waveParameters[wave].maxAIAdviceTimeInSeconds;
             SettingsHolders.Add(ph10);
+
+            ParameterHolder ph14 = new ParameterHolder();
+            ph14.parameterName = ParameterNames.AICorrectProbability;
+            ph14.parameterValue = settings[gameMode].waveParameters[wave].AICorrectProbability;
+            SettingsHolders.Add(ph14);
+
+            ParameterHolder ph15 = new ParameterHolder();
+            ph15.parameterName = ParameterNames.HumanCorrectProbability;
+            ph15.parameterValue = settings[gameMode].waveParameters[wave].humanCorrectProbability;
+            SettingsHolders.Add(ph15);
 
             ParameterHolder ph11 = new ParameterHolder();
             ph11.parameterName = ParameterNames.AIRandomSeed;
@@ -1209,25 +1225,9 @@ public class NewGameManager : MonoBehaviour
             ph12.parameterValue = settings[gameMode].humanRandomSeed;
             SettingsHolders.Add(ph12);
 
-            ParameterHolder ph13 = new ParameterHolder();
-            ph13.parameterName = ParameterNames.DifficultyRatio;
-            ph13.parameterValue = settings[gameMode].difficultyRatio;
-            SettingsHolders.Add(ph13);
 
 
-            ParameterHolder ph14 = new ParameterHolder();
-            ph14.parameterName = ParameterNames.AICorrectProbability;
 
-            ParameterHolder ph15 = new ParameterHolder();
-            ph15.parameterName = ParameterNames.HumanCorrectProbability;
-
-            for (int i = 0; i < settings[gameMode].maxWaves; i++) {
-                ph14.parameterValues.Add(settings[gameMode].accuracies[i].AICorrectProbability);
-                ph15.parameterValues.Add(settings[gameMode].accuracies[i].humanCorrectProbability);
-            }
-
-            SettingsHolders.Add(ph14);
-            SettingsHolders.Add(ph15);
 
             
             // ParameterHolder ph16 = new ParameterHolder();

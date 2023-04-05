@@ -1317,7 +1317,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Saving data . . .
+  m_Text: Saving game . . .
 --- !u!222 &627320400
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2497,6 +2497,26 @@ MonoBehaviour:
   IgnoreAdviceButton: {fileID: 1520514385}
   colorToggle: 1
   SettingsHolders: []
+  SettingResponse:
+    _id: 
+    name: 
+    note: 
+    isSelected: 0
+    training:
+      maxWaves: 0
+      waveParameters: []
+      AIRandomSeed: 0
+      humanRandomSeed: 0
+      _id: 
+    session:
+      maxWaves: 0
+      waveParameters: []
+      AIRandomSeed: 0
+      humanRandomSeed: 0
+      _id: 
+    createdAt: 
+    updatedAt: 
+    __v: 0
   studyId: 
   settingsId: 
 --- !u!1001 &1090230514
@@ -46614,8 +46634,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 9183802355838198863}
   m_HandleRect: {fileID: 9183802355838198856}
   m_Direction: 0
-  m_Value: 1
-  m_Size: 1
+  m_Value: 0
+  m_Size: 0.99999994
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
