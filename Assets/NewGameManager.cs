@@ -153,7 +153,6 @@ public class NewGameManager : MonoBehaviour
         State = GameState.WaveStart;
         HidePrototypes();
         StartWave();
-        StartCoroutine(FetchParameters());
         StartCoroutine(FetchSelectedStudyId());
     }
     public void Initialize()
@@ -1109,7 +1108,8 @@ public class NewGameManager : MonoBehaviour
     public List<ParameterHolder> SettingsHolders = new List<ParameterHolder>();
     public ParameterInfo SettingResponse;
     public IEnumerator FetchParameters() {
-        using (UnityWebRequest req = UnityWebRequest.Get(String.Format("http://localhost:5001/api/getSelectedSettings")))
+        Debug.Log("hahahahahahahahahahhahahahah "+ studyId + " " + NewLobbyManager.inst.groupNumber);
+        using (UnityWebRequest req = UnityWebRequest.Get(String.Format("http://localhost:5001/api/getSelectedSettings?studyId={0}&settingNumber={1}", studyId, NewLobbyManager.inst.groupNumber)))
         {
             yield return req.Send();
             while(!req.isDone)
@@ -1117,8 +1117,8 @@ public class NewGameManager : MonoBehaviour
             byte[] result = req.downloadHandler.data;
             string jsonData = System.Text.Encoding.UTF8.GetString(result);
             ParameterInfo info = JsonUtility.FromJson<ParameterInfo>(jsonData);
-            // var output = JsonUtility.ToJson(info, true);
-            // Debug.Log(output);
+            var output = JsonUtility.ToJson(info, true);
+            Debug.Log(output);
 
             SettingResponse = info;
             extractSettings(info);
@@ -1135,6 +1135,7 @@ public class NewGameManager : MonoBehaviour
             string jsonData = System.Text.Encoding.UTF8.GetString(result);
             SelectedStudyId info = JsonUtility.FromJson<SelectedStudyId>(jsonData);
             studyId = info.studyId;
+            StartCoroutine(FetchParameters()); 
         }
     }
 

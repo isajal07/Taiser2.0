@@ -94,6 +94,12 @@ public class NewLobbyManager : MonoBehaviour
     public static TaiserPlayer thisPlayer;
     public static PlayerSpecies teammateSpecies;
 
+    public int groupNumber = 1;
+
+    public void OnGroupChange(int option) {
+        groupNumber = option + 1;
+    }
+
     public void OnJoinButton()
     {
         PlayerName = AliasInputFieldText.text.Trim();
