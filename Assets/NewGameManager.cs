@@ -1108,8 +1108,7 @@ public class NewGameManager : MonoBehaviour
     public List<ParameterHolder> SettingsHolders = new List<ParameterHolder>();
     public ParameterInfo SettingResponse;
     public IEnumerator FetchParameters() {
-        Debug.Log("hahahahahahahahahahhahahahah "+ studyId + " " + NewLobbyManager.inst.groupNumber);
-        using (UnityWebRequest req = UnityWebRequest.Get(String.Format("http://localhost:5001/api/getSelectedSettings?studyId={0}&settingNumber={1}", studyId, NewLobbyManager.inst.groupNumber)))
+        using (UnityWebRequest req = UnityWebRequest.Get(String.Format("https://taiser2.site:5001/api/getSelectedSettings?studyId={0}&settingNumber={1}", studyId, NewLobbyManager.inst.groupNumber)))
         {
             yield return req.Send();
             while(!req.isDone)
@@ -1126,7 +1125,7 @@ public class NewGameManager : MonoBehaviour
     }
     public string studyId;
     public IEnumerator FetchSelectedStudyId() {
-        using (UnityWebRequest req = UnityWebRequest.Get(String.Format("http://localhost:5001/api/getSelectedStudy")))
+        using (UnityWebRequest req = UnityWebRequest.Get(String.Format("https://taiser2.site:5001/api/getSelectedStudy")))
         {
             yield return req.Send();
             while(!req.isDone)
