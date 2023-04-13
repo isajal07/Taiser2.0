@@ -1677,22 +1677,6 @@ MonoBehaviour:
       m_Image: {fileID: 0}
     - m_Text: 2
       m_Image: {fileID: 0}
-    - m_Text: 3
-      m_Image: {fileID: 0}
-    - m_Text: 4
-      m_Image: {fileID: 0}
-    - m_Text: 5
-      m_Image: {fileID: 0}
-    - m_Text: 6
-      m_Image: {fileID: 0}
-    - m_Text: 7
-      m_Image: {fileID: 0}
-    - m_Text: 8
-      m_Image: {fileID: 0}
-    - m_Text: 9
-      m_Image: {fileID: 0}
-    - m_Text: 10
-      m_Image: {fileID: 0}
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
@@ -49600,7 +49584,7 @@ MonoBehaviour:
     m_FontSize: 24
     m_FontStyle: 0
     m_BestFit: 1
-    m_MinSize: 1
+    m_MinSize: 0
     m_MaxSize: 300
     m_Alignment: 4
     m_AlignByGeometry: 1
@@ -49608,16 +49592,19 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\"The line between nation-state and criminal actors is increasingly blurry
-    as nation-states turn to criminal proxies as a tool of state power, then turn
-    a blind eye to the cyber crime perpetrated by the same malicious actors. \"\nMieke
-    Eoyang, Deputy assistant secretary of defense \n\nUNR has Funds from the National
-    Science Foundation and the Department of Defense\n\nObjective: Develop training
-    programs for next generation cyber defense\n\nYou! can help us evaluate and assess
-    next gen cyber defense tools\nWork with a human or AI teammate to detect, filter,
-    and eliminate malicious packets sent by nation state and cyber criminal actors\n\nHospitals,
-    utilities, and defense infrastructure may be vulnerable\n\n\nWork fast, work
-    together, work accurately\nLives are at stake\n  \n "
+  m_Text: "\u201CThe line between nation-state and criminal actors is\r increasingly
+    blurry as nation-states turn to criminal\r proxies as a tool of state power,
+    then turn a blind\r eye to the cyber crime perpetuated by the same\r malicious
+    actors\u201D Mieke Eoyang, Deputy Assistant\r Secretary of Defense.\r\n\nUNR
+    has received funding from the National Science\r Foundation and the Department
+    of Defense to\r develop training programs for next generation of\r cyber defense
+    teams. In order to accomplish this\r important objective, we have developed a
+    program\r for evaluating next gen cyber defense tools.\r\n\nYou are invited to
+    participate in this process by\r working with a human or AI teammate to detect,\r
+    filter, and eliminate malicious packets sent by nation\r state and cybercriminal
+    actors.\r\n\nImportant to Note: Hospital, utilities, and defense\r infrastructure
+    may be vulnerable to cyber attacks.\r\n\nYou need to work fast, and work accurately.
+    Lives\r are at stake."
 --- !u!1 &6119114576060091815
 GameObject:
   m_ObjectHideFlags: 0
