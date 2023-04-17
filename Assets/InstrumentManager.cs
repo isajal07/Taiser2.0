@@ -170,8 +170,9 @@ public class InstrumentManager : MonoBehaviour
         foreach(EventLatencyTracker ender in endTrackers) {
             ender.endEventTime = Time.time;
             float delta = ender.endEventTime - ender.startEventTime;
-            string output = ender.startEventType.ToString() + " latency, " + delta.ToString("0.00");
-            AddRecord(tEventType.ToString(), modifier + ", " + output);
+            string outputEvent = ender.startEventType.ToString() + " latency";
+            string outputEventLatency = delta.ToString("0.00");
+            AddRecord(outputEvent, outputEventLatency);
         }
 
     }  
