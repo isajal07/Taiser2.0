@@ -1012,7 +1012,7 @@ public class NewGameManager : MonoBehaviour
         Debug.Log("IGNOREDDDDDDDDDD");
         SetFirewallButton.interactable = false;
         IgnoreAdviceButton.interactable = false;
-        InstrumentManager.inst.AddRecord2(TaiserEventTypes.IgnoredAdvice);
+        InstrumentManager.inst.AddRecord(TaiserEventTypes.IgnoredAdvice);
         State = GameState.InWave;
     }
 
