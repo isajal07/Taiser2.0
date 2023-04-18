@@ -21,7 +21,7 @@ public class Utils : MonoBehaviour
 
     public string generatePlayerName()
     {
-        List<string> HumanNames = new List<string> { "Alex", "Drew", "Kennedy", "Jordan", "Emerson", "Morgan", "Kit", "Sol", "Revel", "Angel", "Riley", "Peyton", "Taylor", "Casey", "Charlie", "Blake" };
+        List<string> HumanNames = new List<string> { "Alex", "Drew", "Kennedy", "Jordan", "Emerson", "Morgan", "Kit", "Sol", "Revel", "Angel", "Riley", "Peyton", "Taylor", "Casey", "Charlie", "Blake", "Olivia", "Emma", "Ava", "Sophia", "Isabella", "Charlotte", "Amelia", "Mia", "Harper", "Evelyn"};
         int choice = Random.Range(0, HumanNames.Count);
         return HumanNames[choice];
     }
