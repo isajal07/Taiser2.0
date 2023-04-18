@@ -73,6 +73,10 @@ public enum TaiserEventTypes
     PacketsHovered,
 
     IgnoredAdvice,
+    AdvisorSelectLatency,
+    SetFireWallLatency,
+    IgnoreAdviceLatency,
+    BackButtonLatency,
     
 }
 
@@ -133,49 +137,49 @@ public class InstrumentManager : MonoBehaviour
     }
 
      [ContextMenu("TestAddRecord")]
-    public void TestAddRecord()
-    {
-        AddRecord(testEvent);
-    }
+    // public void TestAddRecord()
+    // {
+    //     AddRecord(testEvent);
+    // }
 
-      public void AddRecord(TaiserEventTypes tEventType, string modifier = "")
-    {
-        EventLatencyTracker elt = eventLatencyIntervals.Find(x => x.startEventType == tEventType);
-        if(elt != null) {
-            elt.startEventTime = Time.time;
-            AddRecord(tEventType.ToString(), modifier);//this will be added multiple times, once for each latency tracked
-        } 
+    //   public void AddRecord(TaiserEventTypes tEventType, string modifier = "")
+    // {
+    //     EventLatencyTracker elt = eventLatencyIntervals.Find(x => x.startEventType == tEventType);
+    //     if(elt != null) {
+    //         elt.startEventTime = Time.time;
+    //         AddRecord(tEventType.ToString(), modifier);//this will be added multiple times, once for each latency tracked
+    //     } 
 
-        EventLatencyTracker elt2 = eventLatencyIntervals.Find(x => x.endEventTypes.Contains(tEventType));
-        if( elt2 != null) {
-            elt2.endEventTime = Time.time;
-            float delta = elt2.endEventTime - elt2.startEventTime;
-            AddRecord(tEventType.ToString(), modifier + ", " + delta.ToString("0.00"));
-        }
+    //     EventLatencyTracker elt2 = eventLatencyIntervals.Find(x => x.endEventTypes.Contains(tEventType));
+    //     if( elt2 != null) {
+    //         elt2.endEventTime = Time.time;
+    //         float delta = elt2.endEventTime - elt2.startEventTime;
+    //         AddRecord(tEventType.ToString(), modifier + ", " + delta.ToString("0.00"));
+    //     }
 
-        if(elt == null && elt2 == null) {
-            AddRecord(tEventType.ToString(), modifier);
-        }
-    }
+    //     if(elt == null && elt2 == null) {
+    //         AddRecord(tEventType.ToString(), modifier);
+    //     }
+    // }
 
-    public void AddRecord2(TaiserEventTypes tEventType, string modifier = "")
-    {
-        List<EventLatencyTracker> startTrackers = eventLatencyIntervals.FindAll(x => x.startEventType == tEventType);
-        foreach(EventLatencyTracker starter in startTrackers) {
-            starter.startEventTime = Time.time;
-            AddRecord(tEventType.ToString(), modifier);
-        }
+    // public void AddRecord2(TaiserEventTypes tEventType, string modifier = "")
+    // {
+    //     List<EventLatencyTracker> startTrackers = eventLatencyIntervals.FindAll(x => x.startEventType == tEventType);
+    //     foreach(EventLatencyTracker starter in startTrackers) {
+    //         starter.startEventTime = Time.time;
+    //         AddRecord(tEventType.ToString(), modifier);
+    //     }
 
-        List<EventLatencyTracker> endTrackers = eventLatencyIntervals.FindAll(x => x.endEventTypes.Contains(tEventType));
-        foreach(EventLatencyTracker ender in endTrackers) {
-            ender.endEventTime = Time.time;
-            float delta = ender.endEventTime - ender.startEventTime;
-            string outputEvent = ender.startEventType.ToString() + " latency";
-            string outputEventLatency = delta.ToString("0.00");
-            AddRecord(outputEvent, outputEventLatency);
-        }
+    //     List<EventLatencyTracker> endTrackers = eventLatencyIntervals.FindAll(x => x.endEventTypes.Contains(tEventType));
+    //     foreach(EventLatencyTracker ender in endTrackers) {
+    //         ender.endEventTime = Time.time;
+    //         float delta = ender.endEventTime - ender.startEventTime;
+    //         string outputEvent = ender.startEventType.ToString() + " latency";
+    //         string outputEventLatency = delta.ToString("0.00");
+    //         AddRecord(outputEvent, outputEventLatency);
+    //     }
 
-    }  
+    // }  
     
     //-----------------------------------------------------------------
 
@@ -296,76 +300,6 @@ public class InstrumentManager : MonoBehaviour
             modifiers += ", " + mod;
         }
         return modifiers;
-    }
-    [System.Serializable]
-    public class Events {
-        public string eventName;
-        public string time;
-        public string building;
-        public string rule;
-        public string advisor;
-        public string latency;
-    }
-    [System.Serializable]
-    public class UserGameData {
-        public string aliasName;
-        public double blackHatScore;
-        public double whiteHatScore;
-        public string studyId;
-        public string settingsId;
-        public string gameMode;
-        public List<Events> events;
-
-    }
-
-    public UserGameData userGameDataSession = new UserGameData();
-
-    public void AddEvents(string eventName, string building="", string rule="", string advisor="", string latency="") {
-        Events events = new Events();
-
-        events.time = Time.time.ToString();
-        events.eventName = eventName;
-        events.building = building;
-        events.rule = rule;
-        events.advisor = advisor;
-        events.latency = latency;
-
-        userGameDataSession.events.Add(events);
-    }
-
-    public void WriteUserGameDataSession() {
-        userGameDataSession.aliasName = "Sajal";
-        userGameDataSession.blackHatScore = 343.34;
-        userGameDataSession.whiteHatScore = 343.33;
-        userGameDataSession.studyId = "Dfdfdfsafg";
-        userGameDataSession.settingsId = "dfdfdfdd";
-        userGameDataSession.gameMode = "Session";
-
-        
-        //TODO: post userGameData to server. 
-        Debug.Log("userGameDataSession.aliasName " + ">>>>>" + userGameDataSession.aliasName);
-        foreach( var x in  userGameDataSession.events) {
-            Debug.Log("userGameDataSession.events " + ">>>>" + x.ToString());
-        }
-        Debug.Log("userGameDataSession.events " + ">>>>" + userGameDataSession.events);
-    }
-
-      public void AddRecord3(TaiserEventTypes tEventType, string building="", string rule="", string advisor="", string latency="")
-    {
-        List<EventLatencyTracker> startTrackers = eventLatencyIntervals.FindAll(x => x.startEventType == tEventType);
-        foreach(EventLatencyTracker starter in startTrackers) {
-            starter.startEventTime = Time.time;
-            AddEvents(tEventType.ToString(), building, rule, advisor, latency);
-        }
-
-        List<EventLatencyTracker> endTrackers = eventLatencyIntervals.FindAll(x => x.endEventTypes.Contains(tEventType));
-        foreach(EventLatencyTracker ender in endTrackers) {
-            ender.endEventTime = Time.time;
-            float delta = ender.endEventTime - ender.startEventTime;
-            string output = ender.startEventType.ToString() + " latency, " + delta.ToString("0.00");
-            AddEvents(tEventType.ToString(), building, rule, advisor, latency=output);
-        }
-
     }
 
 }

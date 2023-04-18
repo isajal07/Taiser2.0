@@ -171,6 +171,8 @@ public class NewGameManager : MonoBehaviour
     public Button MeButton;
 
     public bool isLeftHuman;
+    private float DestinationClickedStartTime = 0;
+    private float AdvisorSelectLatency = 0;
 
     public void SetButtonNamesAndState()
     {
@@ -205,6 +207,8 @@ public class NewGameManager : MonoBehaviour
     {
         State = GameState.PacketExamining;
         AdvisorButtonClickTime = Time.time;
+        AdvisorSelectLatency =  Time.time - DestinationClickedStartTime;
+        InstrumentManager.inst.AddRecord(TaiserEventTypes.AdvisorSelectLatency.ToString(), AdvisorSelectLatency.ToString());
     }
     public void OnHumanButtonClicked()
     {
@@ -232,8 +236,8 @@ public class NewGameManager : MonoBehaviour
     /// <param name="destination"></param>
     public void OnAttackableDestinationClicked(Destination destination)
     {
-        InstrumentManager.inst.AddRecord2(TaiserEventTypes.MaliciousDestinationClicked, destination.inGameName);
-        // InstrumentManager.inst.AddRecord3(TaiserEventTypes.MaliciousDestinationClicked, destination.inGameName,"","","");
+        DestinationClickedStartTime = Time.time;
+        InstrumentManager.inst.AddRecord(TaiserEventTypes.MaliciousDestinationClicked.ToString(), destination.inGameName);
         State = GameState.ChooseAdvisorOrMe;
         SetButtonNamesAndState();
         RuleSpecButtonManager.inst.CurrentDestination = destination;
@@ -845,6 +849,8 @@ public class NewGameManager : MonoBehaviour
    public Text FirewallAlertText;
    public GameObject FirewallAlertColor;
 
+   public float SetFireWallLatency = 0;
+
    public void SetFirewallAlert(string alertText, Color alertColor) {
         float displayTime = 2.0f;
         FirewallAlertPanel.SetActive(true);
@@ -859,6 +865,9 @@ public class NewGameManager : MonoBehaviour
     }
    public void ApplyFirewallRule(Destination destination, LightWeightPacket packet, bool isAdvice)
     {
+        SetFireWallLatency = Time.time - RuleSpecButtonManager.inst.AdviceAppearedStartTime;
+        InstrumentManager.inst.AddRecord(TaiserEventTypes.SetFireWallLatency.ToString(), SetFireWallLatency.ToString());
+
         if(packet == null) return; //------------------------------------------
 
         destination.FilterOnRule(packet);
@@ -867,18 +876,18 @@ public class NewGameManager : MonoBehaviour
             SetFirewallAlert("Correct Firewall !", Color.green);
             if(isAdvice)
             {
-                InstrumentManager.inst.AddRecord2(TaiserEventTypes.AdvisedFirewallCorrectAndSet);
+                InstrumentManager.inst.AddRecord(TaiserEventTypes.AdvisedFirewallCorrectAndSet.ToString());
              } else {
-                InstrumentManager.inst.AddRecord2(TaiserEventTypes.UserBuiltFirewallCorrectAndSet);        
+                InstrumentManager.inst.AddRecord(TaiserEventTypes.UserBuiltFirewallCorrectAndSet.ToString());        
             }//NewAudioMgr.inst.PlayOneShot(NewAudioMgr.inst.GoodFilterRule);
             EffectsManager.inst.GoodFilterApplied(destination, packet);
         } else {
             Debug.Log("INCORRECT FIREWALL!!");
             SetFirewallAlert("Incorrect Firewall !", Color.red);
             if(isAdvice)
-             {   InstrumentManager.inst.AddRecord2(TaiserEventTypes.AdvisedFirewallIncorrectAndSet);
+             {   InstrumentManager.inst.AddRecord(TaiserEventTypes.AdvisedFirewallIncorrectAndSet.ToString());
              }else{
-                InstrumentManager.inst.AddRecord2(TaiserEventTypes.UserBuiltFirewallIncorrectAndSet);
+                InstrumentManager.inst.AddRecord(TaiserEventTypes.UserBuiltFirewallIncorrectAndSet.ToString());
              }
             EffectsManager.inst.BadFilterApplied(destination, packet);
             if(shouldApplyPenalty)
@@ -973,6 +982,8 @@ public class NewGameManager : MonoBehaviour
     public RectTransform BlackFillArea;
     public Button SetFirewallButton;
     public Button IgnoreAdviceButton;
+    private float IgnoreAdviceLatency = 0;
+    private float BackButtonLatency = 0;
     public void ApplyScorePenalty()
     {
         penaltyCount++;
@@ -1003,16 +1014,24 @@ public class NewGameManager : MonoBehaviour
     {
         SetFirewallButton.interactable = false;
         IgnoreAdviceButton.interactable = false;
-        InstrumentManager.inst.AddRecord2(TaiserEventTypes.BackButtonNoFirewallSet);
+
+        BackButtonLatency = Time.time - RuleSpecButtonManager.inst.AdviceAppearedStartTime;
+        InstrumentManager.inst.AddRecord(TaiserEventTypes.BackButtonLatency.ToString(), BackButtonLatency.ToString());
+
+        InstrumentManager.inst.AddRecord(TaiserEventTypes.BackButtonNoFirewallSet.ToString());
         State = GameState.InWave;
     }
 
     public void OnIgnoreAdivceButton()
     {
         Debug.Log("IGNOREDDDDDDDDDD");
+
+        IgnoreAdviceLatency = Time.time - RuleSpecButtonManager.inst.AdviceAppearedStartTime;
+        InstrumentManager.inst.AddRecord(TaiserEventTypes.IgnoreAdviceLatency.ToString(), IgnoreAdviceLatency.ToString());
+
         SetFirewallButton.interactable = false;
         IgnoreAdviceButton.interactable = false;
-        InstrumentManager.inst.AddRecord(TaiserEventTypes.IgnoredAdvice);
+        InstrumentManager.inst.AddRecord(TaiserEventTypes.IgnoredAdvice.ToString());
         State = GameState.InWave;
     }
 

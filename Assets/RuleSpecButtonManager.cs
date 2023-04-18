@@ -364,8 +364,7 @@ public class RuleSpecButtonManager : MonoBehaviour
     {
         Debug.Log("Picked human");
         // State = AdvisingState.Human;
-        InstrumentManager.inst.AddRecord2(TaiserEventTypes.PickedAdvisorType, "Human");
-        // InstrumentManager.inst.AddRecord3(TaiserEventTypes.PickedAdvisorType, "", "", "Human", "");
+        InstrumentManager.inst.AddRecord(TaiserEventTypes.PickedAdvisorType.ToString(), "Human");
         StartCoroutine(ProvideAdviceWithDelay());
     }
     public void AskForAIAdvice()
@@ -373,8 +372,7 @@ public class RuleSpecButtonManager : MonoBehaviour
         Debug.Log("Picked AI");
         // State = AdvisingState.AI;
         //Show AI advice after interval
-        InstrumentManager.inst.AddRecord2(TaiserEventTypes.PickedAdvisorType, "AI");
-        //  InstrumentManager.inst.AddRecord3(TaiserEventTypes.PickedAdvisorType, "", "", "AI", "");
+        InstrumentManager.inst.AddRecord(TaiserEventTypes.PickedAdvisorType.ToString(), "AI");
         StartCoroutine(ProvideAdviceWithDelay());
 
     }
@@ -382,8 +380,7 @@ public class RuleSpecButtonManager : MonoBehaviour
     
     public void AskMe()
     {
-        InstrumentManager.inst.AddRecord2(TaiserEventTypes.PickedAdvisorType, "Me");
-        //  InstrumentManager.inst.AddRecord3(TaiserEventTypes.PickedAdvisorType, "", "", "Me", "");
+        InstrumentManager.inst.AddRecord(TaiserEventTypes.PickedAdvisorType.ToString(), "Me");
     }
 
     public float MinHumanTime = 1f;
@@ -425,9 +422,11 @@ public class RuleSpecButtonManager : MonoBehaviour
 
     public bool isFirstHumanAdvice = true;
     public bool isFirstAIAdvice = true;
+    public float AdviceAppearedStartTime = 0;
 
     public void ProvideAdvice()
     {
+        AdviceAppearedStartTime = Time.time;
         adviceProvided = true;
         bool isCorrect = (State == AdvisingState.Human ? 
             AdviceRandomizerFlip(HumanDecisionRandomizer, HumanCorrectAdviceProbability) :
@@ -446,7 +445,8 @@ public class RuleSpecButtonManager : MonoBehaviour
             AdvisorRuleSpec = BlackhatAI.inst.CreateNonMaliciousPacketRuleForDestination(CurrentDestination);
         }
         DisplayPacketInformation(AdvisorRuleSpec, AdvisorPacketRuleTextList);
-        InstrumentManager.inst.AddRecord2(TaiserEventTypes.AdviceAppeared, AdvisorRuleSpec.ToString());
+        // InstrumentManager.inst.AddRecord2(TaiserEventTypes.AdviceAppeared, AdvisorRuleSpec.ToString());
+        InstrumentManager.inst.AddRecord(TaiserEventTypes.AdviceAppeared.ToString(), AdvisorRuleSpec.ToString());
         // adviceProvided = true;
 
         if(packetClicked) {
@@ -464,6 +464,6 @@ public class RuleSpecButtonManager : MonoBehaviour
     public void packetBarHoverExit() {
         PacketBarHoverDurations.Add(Time.time - PacketBarHoverStartTime);
         float packetHoveredLatenct = Time.time - PacketBarHoverStartTime;
-        InstrumentManager.inst.AddRecord(TaiserEventTypes.PacketsHovered, packetHoveredLatenct.ToString());
+        InstrumentManager.inst.AddRecord(TaiserEventTypes.PacketsHovered.ToString(), packetHoveredLatenct.ToString());
     }   
 }
