@@ -77,6 +77,7 @@ public enum TaiserEventTypes
     SetFireWallLatency,
     IgnoreAdviceLatency,
     BackButtonLatency,
+    EndOfWave
     
 }
 

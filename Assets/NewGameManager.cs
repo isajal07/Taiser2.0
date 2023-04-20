@@ -550,6 +550,7 @@ public class NewGameManager : MonoBehaviour
     {
         //Debug.Log("Ending Wave: " + currentWaveNumber + ", isCorrectIndex: " + isCorrectIndex + ", endedSrcs: " + endedSources);
         BackToGameButton.SetActive(false);
+        InstrumentManager.inst.AddRecord(TaiserEventTypes.EndOfWave.ToString(), "");
         Debug.Log("Ending Wave: " + currentWaveNumber + ", endedSrcs: " + endedSources);
         State = GameState.WaveEnd;
         ResetVars();
